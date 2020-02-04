@@ -1,19 +1,18 @@
 # stressaddition
-This is the R implementation of the tri-phasic concentration-response model introduced in:  
+This is the R implementation of the tri-phasic concentration-response model introduced in
 [Liess, M., Henz, S. & Knillmann, S. Predicting low-concentration effects of pesticides. Sci Rep 9, 15248 (2019).](https://doi.org/10.1038/s41598-019-51645-4)
-
 It allows modeling of ecotoxicological experiments where the response shows signs of a hormesis effect.
 
 ## Installation
 Stressaddition is not on CRAN. You can install the newest version from GitLab using the devtools package:
 ``` r
 # install.packages("devtools")
-devtools::install_gitlab("")
+devtools::install_gitlab("oekotox/stressaddition", host = "git.ufz.de")
 ```
-Alternatively there are binary and source builds downloadable from the **releases page**.
+Alternatively there are binary and source builds downloadable from the [releases page](https://git.ufz.de/oekotox/stressaddition/-/releases).
 
 ## Updating
-RStudio's package updater won't detect updates in packages installed from GitHub or GitLab. I recommend running 
+RStudio's integrated package updater won't detect updates in packages installed from GitHub or GitLab. I recommend running 
 ```r
 # install.packages("remotes")
 remotes::update_packages()
