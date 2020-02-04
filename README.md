@@ -23,7 +23,7 @@ in regular intervals to check for updates from those sources.
 Please cite this package if you use it in your analysis. See `citation("stressaddition")` for details.
 
 ## Example
-In the paper we describe the model in the context of survival experiments. However, it can also be used to model other concentration dependent responses. For this reason the more general term "effect" instead of "survival" is used throughout the package.
+In the paper we use the model in the context of survival experiments. However, it can also be applicable in modeling other concentration or dose dependent responses. For this reason the more general term "effect" instead of "survival" is used throughout the package.
 ```r
 library(stressaddition)
 model <- ecxsys(
