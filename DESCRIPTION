@@ -1,0 +1,38 @@
+Package: stressaddition
+Type: Package
+Title: Modeling Tri-Phasic Concentration-Response Relationships
+Version: 1.11.0
+Date: 2020-02-04
+Authors@R: c(person("Sebastian", 
+                    "Henz", 
+                    role = c("aut", "cre"), 
+                    email = "sebastian.henz@ufz.de", 
+                    comment = c(ORCID = "0000-0001-8299-8852")),
+             person("Matthias",
+                    "Liess",
+                    role = "aut",
+                    comment = c(ORCID = "0000-0002-3321-8909")),
+             person("Helmholtz-Zentrum fuer Umweltforschung GmbH - UFZ",
+                    role = c("cph", "fnd")))
+Description: The implementation of the tri-phasic concentration-response model 
+    introduced in "Predicting low-concentration effects of pesticides" by 
+    Liess, Henz and Knillmann (2019) <doi: 10.1038/s41598-019-51645-4>. It 
+    allows modeling of ecotoxicological experiments where the response shows 
+    signs of a hormesis effect.
+License: none yet
+Copyright: file inst/COPYRIGHTS
+URL: https://git.ufz.de/oekotox/stressaddition
+BugReports: https://git.ufz.de/oekotox/stressaddition/issues
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 3.5)
+Imports: 
+    drc (>= 3.0),
+    plotrix,
+    stats,
+    graphics,
+    grDevices
+Suggests: 
+    testthat (>= 2.1.0)
+RoxygenNote: 7.0.2
