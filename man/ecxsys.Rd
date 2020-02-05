@@ -17,23 +17,25 @@ ecxsys(
 }
 \arguments{
 \item{concentration}{A vector of concentrations, one of which must be 0 to
-indicate the control.}
+indicate the control. Should be sorted in ascending order, otherwise it
+will be sorted automatically.}
 
 \item{effect_tox_observed}{A vector of effect values observed at the given
 concentrations and in absence of environmental stress. Values must be
 between 0 and \code{effect_max}.}
 
-\item{effect_tox_env_observed}{Effect values observed at the given
-concentrations and in the presence of environmental stress. Values must be
-between 0 and \code{effect_max}. This argument is optional and can be left
-out to model without environmental stress.}
+\item{effect_tox_env_observed}{Effect values observed in the presence of
+environmental stress. This argument is optional and can be left out to
+model without environmental stress. Values must be between 0 and
+\code{effect_max}.}
 
-\item{hormesis_concentration}{The concentration where the hormesis is.}
+\item{hormesis_concentration}{The concentration where the hormesis occurs.
+This is usually the concentration of the highest effect after the control.}
 
-\item{hormesis_index}{A single integer specifying the index of the hormesis
-concentration in the concentration vector. This argument exists for
-compatibility with older versions of this function. Use one of the the
-hormesis arguments but not both.}
+\item{hormesis_index}{\strong{Deprecated, will be removed soon.} A single
+integer specifying the index of the hormesis concentration in the
+concentration vector. This argument exists for compatibility with older
+versions of this function.}
 
 \item{effect_max}{The maximum value the effect could possibly reach. For
 survival data in percent this should be 100 (the default).}
@@ -41,20 +43,78 @@ survival data in percent this should be 100 (the default).}
 \item{p, q}{The shape parameters of the beta distribution. Default is 3.2.}
 }
 \value{
-TODO: explain output list, especially the function fn
+The result is a list containing many different objects with the most
+  important being \code{curves} and \code{fn}. You can use \code{fn()} to
+  calculate the curves at your concentrations of choice, see examples.
+  \code{curves} is a data frame with the following columns:
+  \describe{
+    \item{concentration}{Concentrations regularly spaced on a logarithmic
+    scale in the given concentration range. The control is approximated by
+    the lowest non-control concentration times 1e-7.}
+    \item{effect_tox_simple}{The five-parameter log-logistic model of the
+    effect derived from the observations under toxicant stress but without
+    environmental stress.}
+    \item{effect_tox}{Modeled effect resulting from toxicant and system
+    stress.}
+    \item{effect_tox_sys}{Modeled effect resulting from toxicant and system
+    stress.}
+    \item{stress_tox}{The toxicant stress.}
+    \item{sys_stress_tox}{System stress under toxicant stress conditions
+    without environmental stress.}
+    \item{stress_tox_sys}{The sum of \code{stress_tox} and
+    \code{sys_stress_tox}.}
+    \item{effect_tox_env_simple}{The five-parameter log-logistic model of the
+    effect derived from the observations under toxicant stress with
+    environmental stress.}
+    \item{effect_tox_env}{Modeled effect resulting from toxicant and
+    environmental stress.}
+    \item{effect_tox_env_sys}{Modeled effect resulting from toxicant,
+    environmental and system stress.}
+    \item{stress_env}{Environmental stress.}
+    \item{stress_tox_env}{The sum of toxicant and environmental stress.}
+    \item{sys_stress_tox_env}{System stress under toxicant and
+    environmental stress conditions.}
+    \item{stress_tox_env_sys}{The sum of \code{stress_tox_env} and
+    \code{sys_stress_tox_env}.}
+    \item{use_for_plotting}{A boolean vector which is used in the plotting
+    functions. It controls which parts of the curves are removed for the
+    broken concentration axis.}
+  }
 }
 \description{
-The ECx-SyS model.
+The ECx-SyS model for modeling concentration-effect relationships which
+indicate signs of hormesis.
 }
 \details{
-TODO: improve this help text
+It is advised to complete the curve down to zero for optimal prediction.
+Therefore \code{effect_tox_observed} in the highest concentration should be
+at or close to zero. If the model does not fit properly try adding an effect
+of 0 at ten times the maximum observed concentration.
+
+The vectors \code{concentration}, \code{effect_tox_observed} and
+\code{effect_tox_env_observed} must be of equal length and should be sorted
+by increasing concentration.
 }
 \examples{
-result <- ecxsys(
+model <- ecxsys(
     concentration = c(0, 0.03, 0.3, 3, 10),
     effect_tox_observed = c(85, 76, 94, 35, 0),
     effect_tox_env_observed = c(24, 23, 32, 0, 0),
-    hormesis_index = 3
+    hormesis_concentration = 0.3
 )
+
+# Use effect_max if for example the effect is given as the number of
+# surviving animals and the initial number of animals is 20:
+model <- ecxsys(
+    concentration = c(0, 0.03, 0.3, 3, 10),
+    effect_tox_observed = c(17, 15.2, 18.8, 7, 0),
+    effect_tox_env_observed = c(4.8, 4.6, 6.4, 0, 0),
+    hormesis_concentration = 0.3,
+    effect_max = 20
+)
+
+# The returned object contains a function which is useful for calculating
+# effect and stress values at specific concentrations:
+model$fn(c(0, 0.01, 0.1, 1))
 
 }
