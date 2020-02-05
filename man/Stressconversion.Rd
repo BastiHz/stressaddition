@@ -12,8 +12,8 @@ stress_to_effect(stress, p = 3.2, q = 3.2)
 }
 \arguments{
 \item{effect}{One or more effect values to convert to general stress.
-Should be a value between 0 and 1. Values outside that interval are clipped
-to the interval edges.}
+Should be a value between 0 and 1. Smaller or bigger values are treated as
+0 or 1 respectively.}
 
 \item{p, q}{The shape parameters of the beta distribution. Default is 3.2.}
 
@@ -30,6 +30,9 @@ These are simple wrappers around the beta distribution function
 \code{1 - pbeta(stress, p, q)}. \code{effect_to_stress} first clips the
 effect to the interval [0, 1] and then returns
 \code{qbeta(1 - effect, p, q)}.
+
+"Effect" is a response which is negatively correlated with stress. For
+example increasing toxicant concentration (stress) reduces survival (effect).
 }
 \examples{
 stress <- 0.3

@@ -1,8 +1,3 @@
-# FIXME: Make it absolutely clear what is meant with "effect" here. Mortality or
-# survival? It's survival. "Effect" is what's on the y axis. Low stress -> high
-# survival.
-
-
 #' Convert Between Stress and Effect
 #'
 #' Functions to convert effect to general stress or vice versa using the beta
@@ -15,11 +10,14 @@
 #' effect to the interval [0, 1] and then returns
 #' \code{qbeta(1 - effect, p, q)}.
 #'
+#' "Effect" is a response which is negatively correlated with stress. For
+#' example increasing toxicant concentration (stress) reduces survival (effect).
+#'
 #' @name Stressconversion
 #'
 #' @param effect One or more effect values to convert to general stress.
-#'   Should be a value between 0 and 1. Values outside that interval are clipped
-#'   to the interval edges.
+#'   Should be a value between 0 and 1. Smaller or bigger values are treated as
+#'   0 or 1 respectively.
 #' @param stress One or more stress values to convert to effect.
 #' @param p,q The shape parameters of the beta distribution. Default is 3.2.
 #'
