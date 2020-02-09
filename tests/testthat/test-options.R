@@ -19,5 +19,9 @@ test_that("user options are not permanently changed by ecxsys()", {
         hormesis_concentration = 0.3
     )
     new_options <- options()
-    expect_identical(original_options, new_options)
+
+    # When doing devtools::check() some additional options may get added while
+    # running the model. So limit the equality testing to the option names which
+    # were there originally.
+    expect_identical(original_options, new_options[names(original_options)])
 })
