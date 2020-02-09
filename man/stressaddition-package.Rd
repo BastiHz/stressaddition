@@ -34,7 +34,6 @@ See the publication linked below for more information including
 Useful links:
 \itemize{
   \item \url{https://git.ufz.de/oekotox/stressaddition}
-  \item Report bugs at \url{https://git.ufz.de/oekotox/stressaddition/issues}
 }
 
 }

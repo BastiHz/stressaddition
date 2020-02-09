@@ -22,7 +22,6 @@ Description: The implementation of the tri-phasic concentration-response model
 License: none yet
 Copyright: file inst/COPYRIGHTS
 URL: https://git.ufz.de/oekotox/stressaddition
-BugReports: https://git.ufz.de/oekotox/stressaddition/issues
 Encoding: UTF-8
 LazyData: true
 Depends:
