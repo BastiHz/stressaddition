@@ -209,12 +209,14 @@ ecxsys <- function(concentration,
     )
     conc_interpolated <- 10^temp$x
     effect_tox_observed_interpolated_simple_model <- temp$y
+    original_options <- options()
     effect_tox_mod_simple <- drc::drm(
         effect_tox_observed_interpolated_simple_model ~ conc_interpolated,
         fct = drc::LL.5(fixed = c(
             NA, 0, effect_tox_observed_averaged[1], NA, NA
         ))
     )
+    options(original_options)  #  because drm modifies options
     effect_tox_simple <- predict(effect_tox_mod_simple, data.frame(concentration))
     output$effect_tox_mod_simple <- effect_tox_mod_simple
     output$effect_tox_simple <- effect_tox_simple * effect_max
@@ -224,12 +226,14 @@ ecxsys <- function(concentration,
             effect_tox_env_observed_averaged,
             xout = temp$x
         )$y
+        original_options <- options()
         effect_tox_env_mod_simple <- drc::drm(
             effect_tox_env_observed_interpolated_simple_model ~ conc_interpolated,
             fct = drc::LL.5(fixed = c(
                 NA, 0, effect_tox_env_observed_averaged[1], NA, NA
             ))
         )
+        options(original_options)  #  because drm modifies options
         effect_tox_env_simple <- predict(
             effect_tox_env_mod_simple,
             data.frame(concentration)
@@ -292,10 +296,12 @@ ecxsys <- function(concentration,
     effect_tox[1] <- 1
     effect_to_fit_idx <- 2:(hormesis_index - 1)
     effect_tox[effect_to_fit_idx] <- NA
+    original_options <- options()
     effect_tox_mod <- drc::drm(
         effect_tox ~ concentration,
         fct = drc::W1.2()
     )
+    options(original_options)  #  because drm modifies options
     effect_tox <- predict(
         effect_tox_mod,
         data.frame(concentration = concentration)
@@ -319,10 +325,12 @@ ecxsys <- function(concentration,
         {
             # There is no other way to suppress that one error message
             # except by changing the options temporarily.
+            original_options <- options()
             options(show.error.messages = FALSE)
             drc::drm(sys_stress_tox ~ stress_tox, fct = drc::W1.3())
         },
         error = function(e) {
+            options(original_options)  # because drm() modifies the "warn" option
             warning(
                 "Using a horizontal linear model for sys_stress_tox_mod ",
                 "because the Weibull model did not converge.",
@@ -335,7 +343,7 @@ ecxsys <- function(concentration,
             sys_stress_tox <- c(0, 0)
             return(lm(sys_stress_tox ~ stress_tox))
         },
-        finally = options(show.error.messages = TRUE)
+        finally = options(original_options)
     )
     output$sys_stress_tox_mod <- sys_stress_tox_mod
     sys_stress_tox <- unname(
@@ -373,10 +381,12 @@ ecxsys <- function(concentration,
             {
                 # There is no other way to suppress that one error message
                 # except by changing the options temporarily.
+                original_options <- options()
                 options(show.error.messages = FALSE)
                 drc::drm(sys_stress_tox_env ~ stress_tox, fct = drc::W1.3())
             },
             error = function(e) {
+                options(original_options)  # because drm() modifies the "warn" option
                 warning(
                     "Using a horizontal linear model for ",
                     "sys_stress_tox_env_mod because the Weibull model did ",
@@ -390,7 +400,7 @@ ecxsys <- function(concentration,
                 sys_stress_tox_env <- c(0, 0)
                 return(lm(sys_stress_tox_env ~ stress_tox))
             },
-            finally = options(show.error.messages = TRUE)
+            finally = options(original_options)
         )
         output$sys_stress_tox_env_mod <- sys_stress_tox_env_mod
         sys_stress_tox_env <- unname(
