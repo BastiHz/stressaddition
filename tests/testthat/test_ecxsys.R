@@ -71,26 +71,6 @@ test_that("min(concentration) == 0 is shifted the correct amount", {
 })
 
 
-test_that("min(concentration) > 0 is conserved", {
-    expect_warning(
-        ecxsys(
-            effect_tox_observed = c(85, 76, 94, 35, 0),
-            concentration = c(0.0005, 0.03, 0.3, 3, 10),
-            hormesis_index = 3
-        )
-    )
-    suppressWarnings({
-        mod <- ecxsys(
-            effect_tox_observed = c(85, 76, 94, 35, 0),
-            effect_tox_env_observed = c(24, 23, 32, 0, 0),
-            concentration = c(0.0005, 0.03, 0.3, 3, 10),
-            hormesis_index = 3
-        )
-    })
-    expect_equal(mod$curves$concentration[1] * 10^5, 0.0005)
-})
-
-
 test_that("the discrete results have not changed", {
     expect_equal(
         round(mod$effect_tox_simple, 3),
@@ -260,7 +240,7 @@ test_that("effect_tox_env_observed can be left out", {
 })
 
 
-test_that("model not converging produces warnings but no errors", {
+test_that("model not converging produces warnings", {
     expect_warning(
         ecxsys(
             concentration = c(0, 0.1, 0.5, 1, 10, 33),

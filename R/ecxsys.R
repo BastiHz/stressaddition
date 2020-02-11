@@ -1,3 +1,11 @@
+# Note about the setting and resetting of options:
+# The drc package changes some of the options which some users may have
+# modified. Of particular interest is options("warn") because it is important
+# that the ecxsys function can generate some warnings. So every time drc::drm is
+# called this option is cached beforehand and reset afterwards. Additionally,
+# all options are cached at the beginning of ecxsys and reset on exit.
+
+
 #' ECx-SyS
 #'
 #' The ECx-SyS model for modeling concentration-effect relationships which
@@ -103,6 +111,14 @@ ecxsys <- function(concentration,
                    q = 3.2) {
     output <- list(args = as.list(environment()))
 
+    original_options <- options()
+    on.exit(reset_options(original_options))
+    warn_error_original <- list(
+        warn = getOption("warn"),
+        show.error.messages = getOption("show.error.messages")
+    )
+
+
     # input validation ----------------------------------------------------
     if (effect_max <= 0) {
         stop("effect_max must be >= 0")
@@ -163,26 +179,14 @@ ecxsys <- function(concentration,
     # second lowest concentration. This is required to approximate 0 because
     # of the logarithmic axis.
     if (any(concentration < 0)) {
-        stop("Concentration must be >= 0")
+        stop("Concentrations must be >= 0")
     } else if (min(concentration) > 0) {
-        warning("No control is given and therefore the smallest concentration ",
-                "is assumed to be the control.")
-        min_conc <- min(concentration)
-        concentration[which.min(concentration)] <- 0
+        stop("No control is given. The first concentration must be 0.")
     } else {
         min_conc <- 10 ^ floor(log10(concentration[2]) - conc_shift)
     }
     if (is.unsorted(concentration)) {
-        warning("The concentrations are not sorted in increasing order. The ",
-                "provided effect vectors will be sorted by concentration.")
-        od <- order(concentration)
-        concentration <- concentration[od]
-        effect_tox_env_observed <- effect_tox_env_observed[od]
-        effect_tox_observed <- effect_tox_observed[od]
-    }
-    if (effect_tox_observed[length(effect_tox_observed)] > 0) {
-        warning("It is advised to complete the curve down to zero for ",
-                "optimal prediction.")
+        stop("The values must be sorted by increasing concentration.")
     }
 
 
@@ -209,14 +213,13 @@ ecxsys <- function(concentration,
     )
     conc_interpolated <- 10^temp$x
     effect_tox_observed_interpolated_simple_model <- temp$y
-    original_options <- options()
     effect_tox_mod_simple <- drc::drm(
         effect_tox_observed_interpolated_simple_model ~ conc_interpolated,
         fct = drc::LL.5(fixed = c(
             NA, 0, effect_tox_observed_averaged[1], NA, NA
         ))
     )
-    options(original_options)  #  because drm modifies options
+    options(warn_error_original)
     effect_tox_simple <- predict(effect_tox_mod_simple, data.frame(concentration))
     output$effect_tox_mod_simple <- effect_tox_mod_simple
     output$effect_tox_simple <- effect_tox_simple * effect_max
@@ -226,14 +229,13 @@ ecxsys <- function(concentration,
             effect_tox_env_observed_averaged,
             xout = temp$x
         )$y
-        original_options <- options()
         effect_tox_env_mod_simple <- drc::drm(
             effect_tox_env_observed_interpolated_simple_model ~ conc_interpolated,
             fct = drc::LL.5(fixed = c(
                 NA, 0, effect_tox_env_observed_averaged[1], NA, NA
             ))
         )
-        options(original_options)  #  because drm modifies options
+        options(warn_error_original)
         effect_tox_env_simple <- predict(
             effect_tox_env_mod_simple,
             data.frame(concentration)
@@ -296,12 +298,11 @@ ecxsys <- function(concentration,
     effect_tox[1] <- 1
     effect_to_fit_idx <- 2:(hormesis_index - 1)
     effect_tox[effect_to_fit_idx] <- NA
-    original_options <- options()
     effect_tox_mod <- drc::drm(
         effect_tox ~ concentration,
         fct = drc::W1.2()
     )
-    options(original_options)  #  because drm modifies options
+    options(warn_error_original)
     effect_tox <- predict(
         effect_tox_mod,
         data.frame(concentration = concentration)
@@ -325,12 +326,11 @@ ecxsys <- function(concentration,
         {
             # There is no other way to suppress that one error message
             # except by changing the options temporarily.
-            original_options <- options()
             options(show.error.messages = FALSE)
             drc::drm(sys_stress_tox ~ stress_tox, fct = drc::W1.3())
         },
         error = function(e) {
-            options(original_options)  # because drm() modifies the "warn" option
+            options(warn_error_original)
             warning(
                 "Using a horizontal linear model for sys_stress_tox_mod ",
                 "because the Weibull model did not converge.",
@@ -343,7 +343,7 @@ ecxsys <- function(concentration,
             sys_stress_tox <- c(0, 0)
             return(lm(sys_stress_tox ~ stress_tox))
         },
-        finally = options(original_options)
+        finally = options(warn_error_original)
     )
     output$sys_stress_tox_mod <- sys_stress_tox_mod
     sys_stress_tox <- unname(
@@ -381,12 +381,11 @@ ecxsys <- function(concentration,
             {
                 # There is no other way to suppress that one error message
                 # except by changing the options temporarily.
-                original_options <- options()
                 options(show.error.messages = FALSE)
                 drc::drm(sys_stress_tox_env ~ stress_tox, fct = drc::W1.3())
             },
             error = function(e) {
-                options(original_options)  # because drm() modifies the "warn" option
+                options(warn_error_original)
                 warning(
                     "Using a horizontal linear model for ",
                     "sys_stress_tox_env_mod because the Weibull model did ",
@@ -400,7 +399,7 @@ ecxsys <- function(concentration,
                 sys_stress_tox_env <- c(0, 0)
                 return(lm(sys_stress_tox_env ~ stress_tox))
             },
-            finally = options(original_options)
+            finally = options(warn_error_original)
         )
         output$sys_stress_tox_env_mod <- sys_stress_tox_env_mod
         sys_stress_tox_env <- unname(
@@ -499,4 +498,24 @@ ecxsys <- function(concentration,
         concentration_smooth > min_conc * 1.5
 
     return(output)
+}
+
+
+reset_options <- function(original_options) {
+    # Reset all the options which have changed.
+
+    # You may ask why I don't just reset the options using
+    # options(original_options). The reason is that when I do this and ecxsys
+    # generates warnings then those warnings don't show up in the console. I
+    # don't know why, but resetting only the options which have changed
+    # alleviates that problem.
+
+    changed <- list()
+    for (n in names(original_options)) {
+        orig_opt <- original_options[[n]]
+        if (!identical(orig_opt, getOption(n))) {
+            changed[n] <- orig_opt
+        }
+    }
+    options(changed)
 }
