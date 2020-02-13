@@ -44,6 +44,3 @@ ec(model, "effect_tox_sys", 50)
 # The LC10 of the effect under the influence  of toxicant, system and environmental tress:
 ec(model, "effect_tox_env_sys", 10)
 ```
-
-## License
-TODO: license info
