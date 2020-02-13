@@ -10,7 +10,7 @@ The implementation of the tri-phasic concentration-response model
     introduced in "Predicting low-concentration effects of pesticides" by 
     Liess, Henz and Knillmann (2019) <doi: 10.1038/s41598-019-51645-4>. It 
     allows modeling of ecotoxicological experiments where the response shows 
-    signs of a hormesis effect.
+    signs of hormesis.
 }
 \details{
 See the publication linked below for more information including
