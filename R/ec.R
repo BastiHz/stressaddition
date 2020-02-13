@@ -53,5 +53,5 @@ ec <- function(model, effect_name, target_effect) {
     dist <- (target_effect - effect[below]) / (effect[above] - effect[below])
     output$concentration <- dist *
         (concentration[above] - concentration[below]) + concentration[below]
-    return(output)
+    output
 }

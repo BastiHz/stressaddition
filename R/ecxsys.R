@@ -124,8 +124,7 @@ ecxsys <- function(concentration,
         stop("effect_max must be >= 0")
     }
     if (length(concentration) != length(effect_tox_observed)) {
-        stop("concentration and effect_tox_observed must have the ",
-             "same length.")
+        stop("concentration and effect_tox_observed must have the same length.")
     }
     if (length(concentration) > length(unique(concentration))) {
         stop("Concentrations must be unique.")
@@ -139,8 +138,8 @@ ecxsys <- function(concentration,
         stop("Use either hormesis_concentration or hormesis_index but not both.")
     } else if (!m_hc) {
         if (!hormesis_concentration %in% concentration) {
-            stop("hormesis_concentration must be one of the values in ",
-                 "concentration.")
+            stop("hormesis_concentration must be one of the values ",
+                 "in concentration.")
         }
         hormesis_index = which(hormesis_concentration == concentration)
     }
@@ -162,8 +161,8 @@ ecxsys <- function(concentration,
     all_observations <- effect_tox_observed
     if (with_env) {
         if (length(effect_tox_observed) != length(effect_tox_env_observed)) {
-            stop("effect_tox_observed and effect_tox_env_observed must have the ",
-                 "same length.")
+            stop("effect_tox_observed and effect_tox_env_observed must have ",
+                 "the same length.")
         }
         all_observations <- c(all_observations, effect_tox_env_observed)
     }
@@ -172,8 +171,7 @@ ecxsys <- function(concentration,
     }
     if (any(all_observations > effect_max) ||
         any(all_observations < 0)) {
-        stop("Observed effect must be between 0 and ",
-             "effect_max.")
+        stop("Observed effect must be between 0 and effect_max.")
     }
     conc_shift <- 2  # Powers of ten to shift the control downwards from the
     # second lowest concentration. This is required to approximate 0 because
@@ -483,9 +481,6 @@ ecxsys <- function(concentration,
     # also be broken in two. The left part of the axis is supposed to be at
     # 0 but because it's a log axis I have to make the values just really
     # small. The concentrations in the gap won't be used for plotting later.
-
-    # TODO: Also return the LL.5-curves with and without env.
-
     n_smooth <- 1000  #  number of points to approximate the curves
     concentration_smooth <- 10 ^ seq(
         log10(min_conc * conc_adjust_factor),
@@ -496,8 +491,7 @@ ecxsys <- function(concentration,
     output$curves$use_for_plotting <-
         concentration_smooth < min_conc * conc_adjust_factor * 1.5 |
         concentration_smooth > min_conc * 1.5
-
-    return(output)
+    output
 }
 
 
