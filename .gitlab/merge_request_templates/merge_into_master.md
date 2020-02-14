@@ -26,8 +26,9 @@ Comment on any notes that come up during devtools::check().
 * [ ]  This merge introduces new features.
     * [ ]  new features are documented
     * [ ]  new features have tests
+* [ ]  no remaining TODO, FIXME, or debug prints anywhere in the source files
 * [ ]  `devtools::document()`
-* [ ]  `devtools::check()`: no errors, no warnings
+* [ ]  `devtools::check()` without errors or warnings
 
 <!--
 If this merge introduces a new version (major, minor or patch) to the 
