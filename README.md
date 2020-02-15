@@ -14,8 +14,7 @@ Alternatively there are binary and source builds downloadable from the [releases
 ## Updating
 RStudio's integrated package updater won't detect updates in packages installed from GitHub or GitLab. I recommend running 
 ```r
-# install.packages("remotes")
-remotes::update_packages()
+devtools::update_packages()
 ```
 in regular intervals to check for updates from those sources.
 
@@ -28,15 +27,15 @@ In the paper we use the model in the context of survival experiments. However, i
 library(stressaddition)
 model <- ecxsys(
     concentration = c(0, 0.03, 0.3, 3, 10),
+    hormesis_concentration = 0.3,
     effect_tox_observed = c(85, 76, 94, 35, 0),
-    effect_tox_env_observed = c(24, 23, 32, 0, 0),
-    hormesis_concentration = 0.3
+    effect_tox_env_observed = c(24, 23, 32, 0, 0)
 )
 
 # Plot the effect and the system stress:
 par(mfrow = c(2, 1))
 plot_effect(model)
-plot_system_stress(model)
+plot_stress(model)
 
 # The LC50 of the effect under the influence of toxicant and system tress:
 ec(model, "effect_tox_sys", 50)

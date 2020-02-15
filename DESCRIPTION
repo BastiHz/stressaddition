@@ -1,8 +1,8 @@
 Package: stressaddition
 Type: Package
 Title: Modeling Tri-Phasic Concentration-Response Relationships
-Version: 1.11.1
-Date: 2020-02-13
+Version: 2.0.0
+Date: 2020-02-15
 Authors@R: c(person("Sebastian", 
                     "Henz", 
                     role = c("aut", "cre"), 

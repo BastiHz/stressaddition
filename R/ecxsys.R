@@ -17,106 +17,58 @@
 #' of 0 at ten times the maximum observed concentration.
 #'
 #' The vectors \code{concentration}, \code{effect_tox_observed} and
-#' \code{effect_tox_env_observed} must be of equal length and should be sorted
-#' by increasing concentration.
+#' \code{effect_tox_env_observed} (if provided) must be of equal length and
+#' sorted by increasing concentration.
 #'
 #' @param concentration A vector of concentrations, one of which must be 0 to
 #'   indicate the control. Should be sorted in ascending order, otherwise it
 #'   will be sorted automatically.
+#' @param hormesis_concentration The concentration where the hormesis occurs.
+#'   This is usually the concentration of the highest effect after the control.
 #' @param effect_tox_observed A vector of effect values observed at the given
 #'   concentrations and in absence of environmental stress. Values must be
 #'   between 0 and \code{effect_max}.
 #' @param effect_tox_env_observed Effect values observed in the presence of
-#'   environmental stress. This argument is optional and can be left out to
-#'   model without environmental stress. Values must be between 0 and
-#'   \code{effect_max}.
-#' @param hormesis_concentration The concentration where the hormesis occurs.
-#'   This is usually the concentration of the highest effect after the control.
-#' @param hormesis_index \strong{Deprecated, will be removed soon.} A single
-#'   integer specifying the index of the hormesis concentration in the
-#'   concentration vector. This argument exists for compatibility with older
-#'   versions of this function.
+#'   environmental stress. Must be between 0 and \code{effect_max}.
 #' @param effect_max The maximum value the effect could possibly reach. For
 #'   survival data in percent this should be 100 (the default).
 #' @param p,q The shape parameters of the beta distribution. Default is 3.2.
 #'
-#' @return The result is a list containing many different objects with the most
-#'   important being \code{curves} and \code{fn}. You can use \code{fn()} to
-#'   calculate the curves at your concentrations of choice, see examples.
-#'   \code{curves} is a data frame with the following columns:
-#'   \describe{
-#'     \item{concentration}{Concentrations regularly spaced on a logarithmic
-#'     scale in the given concentration range. The control is approximated by
-#'     the lowest non-control concentration times 1e-7.}
-#'     \item{effect_tox_simple}{The five-parameter log-logistic model of the
-#'     effect derived from the observations under toxicant stress but without
-#'     environmental stress.}
-#'     \item{effect_tox}{Modeled effect resulting from toxicant and system
-#'     stress.}
-#'     \item{effect_tox_sys}{Modeled effect resulting from toxicant and system
-#'     stress.}
-#'     \item{stress_tox}{The toxicant stress.}
-#'     \item{sys_stress_tox}{System stress under toxicant stress conditions
-#'     without environmental stress.}
-#'     \item{stress_tox_sys}{The sum of \code{stress_tox} and
-#'     \code{sys_stress_tox}.}
-#'     \item{effect_tox_env_simple}{The five-parameter log-logistic model of the
-#'     effect derived from the observations under toxicant stress with
-#'     environmental stress.}
-#'     \item{effect_tox_env}{Modeled effect resulting from toxicant and
-#'     environmental stress.}
-#'     \item{effect_tox_env_sys}{Modeled effect resulting from toxicant,
-#'     environmental and system stress.}
-#'     \item{stress_env}{Environmental stress.}
-#'     \item{stress_tox_env}{The sum of toxicant and environmental stress.}
-#'     \item{sys_stress_tox_env}{System stress under toxicant and
-#'     environmental stress conditions.}
-#'     \item{stress_tox_env_sys}{The sum of \code{stress_tox_env} and
-#'     \code{sys_stress_tox_env}.}
-#'     \item{use_for_plotting}{A boolean vector which is used in the plotting
-#'     functions. It controls which parts of the curves are removed for the
-#'     broken concentration axis.}
-#'   }
+#' @return A list (of class ecxsys) containing many different objects with the
+#'   most important being \code{curves}, a data frame containing effect and
+#'   stress values at different concentrations. See \code{\link{predict_ecxsys}}
+#'   for details.
 #'
 #' @examples model <- ecxsys(
 #'     concentration = c(0, 0.03, 0.3, 3, 10),
+#'     hormesis_concentration = 0.3,
 #'     effect_tox_observed = c(85, 76, 94, 35, 0),
-#'     effect_tox_env_observed = c(24, 23, 32, 0, 0),
-#'     hormesis_concentration = 0.3
+#'     effect_tox_env_observed = c(24, 23, 32, 0, 0)
 #' )
 #'
 #' # Use effect_max if for example the effect is given as the number of
 #' # surviving animals and the initial number of animals is 20:
 #' model <- ecxsys(
 #'     concentration = c(0, 0.03, 0.3, 3, 10),
+#'     hormesis_concentration = 0.3,
 #'     effect_tox_observed = c(17, 15.2, 18.8, 7, 0),
 #'     effect_tox_env_observed = c(4.8, 4.6, 6.4, 0, 0),
-#'     hormesis_concentration = 0.3,
 #'     effect_max = 20
 #' )
 #'
-#' # The returned object contains a function which is useful for calculating
-#' # effect and stress values at specific concentrations:
-#' model$fn(c(0, 0.01, 0.1, 1))
-#'
 #' @export
 ecxsys <- function(concentration,
-                   effect_tox_observed,
-                   effect_tox_env_observed,
                    hormesis_concentration,
-                   hormesis_index,
+                   effect_tox_observed,
+                   effect_tox_env_observed = NULL,
                    effect_max = 100,
-                   #stress_tox_at_hormesis = NULL,
                    p = 3.2,
                    q = 3.2) {
     output <- list(args = as.list(environment()))
+    class(output) <- c("ecxsys", class(output))
 
     original_options <- options()
     on.exit(reset_options(original_options))
-    warn_error_original <- list(
-        warn = getOption("warn"),
-        show.error.messages = getOption("show.error.messages")
-    )
 
 
     # input validation ----------------------------------------------------
@@ -129,28 +81,18 @@ ecxsys <- function(concentration,
     if (length(concentration) > length(unique(concentration))) {
         stop("Concentrations must be unique.")
     }
-
-    m_hc <- missing(hormesis_concentration)
-    m_hi <- missing(hormesis_index)
-    if (m_hc && m_hi) {
-        stop("Pleace specify either hormesis_concentration or hormesis_index.")
-    } else if (!m_hi && !m_hc) {
-        stop("Use either hormesis_concentration or hormesis_index but not both.")
-    } else if (!m_hc) {
-        if (!hormesis_concentration %in% concentration) {
-            stop("hormesis_concentration must be one of the values ",
-                 "in concentration.")
-        }
-        hormesis_index = which(hormesis_concentration == concentration)
+    if (length(hormesis_concentration) != 1) {
+        stop("hormesis_concentration must be a single number.")
     }
-
-    if (length(hormesis_index) != 1) {
-        stop("hormesis_index must be a single integer.")
-    } else if (hormesis_index <= 2 || hormesis_index >= length(concentration)) {
-        stop("hormesis_index must be greater than 2 and less than ",
-             "(length(concentration)).")
+    if (!hormesis_concentration %in% concentration) {
+        stop("hormesis_concentration must equal one of the concentration values.")
     }
-    if (missing(effect_tox_env_observed)) {
+    hormesis_index = which(hormesis_concentration == concentration)
+    if (hormesis_index <= 2 || hormesis_index >= length(concentration)) {
+        stop("hormesis_concentration must be greater than the lowest ",
+             "non-control concentration and less than the highest concentration")
+    }
+    if (is.null(effect_tox_env_observed)) {
         with_env <- FALSE
         effect_tox_env_observed <- rep(NA, length(concentration))
     } else {
@@ -176,16 +118,16 @@ ecxsys <- function(concentration,
     conc_shift <- 2  # Powers of ten to shift the control downwards from the
     # second lowest concentration. This is required to approximate 0 because
     # of the logarithmic axis.
-    if (any(concentration < 0)) {
-        stop("Concentrations must be >= 0")
-    } else if (min(concentration) > 0) {
-        stop("No control is given. The first concentration must be 0.")
-    } else {
-        min_conc <- 10 ^ floor(log10(concentration[2]) - conc_shift)
-    }
     if (is.unsorted(concentration)) {
         stop("The values must be sorted by increasing concentration.")
     }
+    if (any(concentration < 0)) {
+        stop("Concentrations must be >= 0")
+    }
+    if (min(concentration) > 0) {
+        stop("No control is given. The first concentration must be 0.")
+    }
+    min_conc <- 10 ^ floor(log10(concentration[2]) - conc_shift)
 
 
     # scale observed effect -----------------------------------------------
@@ -195,285 +137,112 @@ ecxsys <- function(concentration,
     effect_tox_env_observed <- effect_tox_env_observed / effect_max
 
 
-    # prepare adjusted control concentration ------------------------------
-    conc_adjust_factor <- 10^-5
-    output$conc_adjust_factor <- conc_adjust_factor
-
-
-    # traditional simple model (LL.5) -------------------------------------
-    conc_with_control_shifted <- c(min_conc, concentration[-1])
-    effect_tox_observed_averaged <- moving_weighted_mean(effect_tox_observed)
-    effect_tox_env_observed_averaged <- moving_weighted_mean(effect_tox_env_observed)
-    temp <- approx(
-        log10(conc_with_control_shifted),
-        effect_tox_observed_averaged,
-        n = 10
-    )
-    conc_interpolated <- 10^temp$x
-    effect_tox_observed_interpolated_simple_model <- temp$y
-    effect_tox_mod_simple <- drc::drm(
-        effect_tox_observed_interpolated_simple_model ~ conc_interpolated,
-        fct = drc::LL.5(fixed = c(
-            NA, 0, effect_tox_observed_averaged[1], NA, NA
-        ))
-    )
-    options(warn_error_original)
-    effect_tox_simple <- predict(effect_tox_mod_simple, data.frame(concentration))
-    output$effect_tox_mod_simple <- effect_tox_mod_simple
-    output$effect_tox_simple <- effect_tox_simple * effect_max
+    # traditional log-logistic model (LL.5) -------------------------------
+    LL5_tox <- fit_LL5_model(min_conc, concentration,
+                             effect_tox_observed,
+                             original_options)
+    output$effect_tox_LL5_mod <- LL5_tox$effect_LL5_mod
+    output$effect_tox_LL5 <- LL5_tox$effect_LL5 * effect_max
     if (with_env) {
-        effect_tox_env_observed_interpolated_simple_model <- approx(
-            log10(conc_with_control_shifted),
-            effect_tox_env_observed_averaged,
-            xout = temp$x
-        )$y
-        effect_tox_env_mod_simple <- drc::drm(
-            effect_tox_env_observed_interpolated_simple_model ~ conc_interpolated,
-            fct = drc::LL.5(fixed = c(
-                NA, 0, effect_tox_env_observed_averaged[1], NA, NA
-            ))
-        )
-        options(warn_error_original)
-        effect_tox_env_simple <- predict(
-            effect_tox_env_mod_simple,
-            data.frame(concentration)
-        )
-        output$effect_tox_env_mod_simple <- effect_tox_env_mod_simple
-        output$effect_tox_env_simple <- effect_tox_env_simple * effect_max
+        LL5_tox_env <- fit_LL5_model(min_conc, concentration,
+                                     effect_tox_env_observed,
+                                     original_options)
+        output$effect_tox_env_LL5_mod <- LL5_tox_env$effect_LL5_mod
+        output$effect_tox_env_LL5 <- LL5_tox_env$effect_LL5 * effect_max
     }
 
 
     # interpolation between subhormesis and hormesis ----------------------
     n_new <- 3  # number of new points
-    len <- n_new + 2  # Add 2 because seq() includes the left and right end.
-    subhormesis_index <- hormesis_index - 1
-
-    concentration_interpolated <- 10^seq(
-        log10(concentration[subhormesis_index]),
-        log10(concentration[hormesis_index]),
-        length.out = len
-    )
-    concentration <- append(
-        concentration,
-        concentration_interpolated[-c(1, len)],
-        subhormesis_index
-    )
-
-    effect_tox_observed_interpolated <- seq(
-        effect_tox_observed[subhormesis_index],
-        effect_tox_observed[hormesis_index],
-        length.out = len
-    )
-    effect_tox_observed <- append(
-        effect_tox_observed,
-        effect_tox_observed_interpolated[-c(1, len)],
-        subhormesis_index
-    )
-
+    concentration <- interpolate(concentration, hormesis_index, n_new, TRUE)
+    effect_tox_observed <- interpolate(effect_tox_observed, hormesis_index, n_new)
     if (with_env) {
-        effect_tox_env_observed_interpolated <- seq(
-            effect_tox_env_observed[subhormesis_index],
-            effect_tox_env_observed[hormesis_index],
-            length.out = len
-        )
-        effect_tox_env_observed <- append(
-            effect_tox_env_observed,
-            effect_tox_env_observed_interpolated[-c(1, len)],
-            subhormesis_index
-        )
+        effect_tox_env_observed <- interpolate(effect_tox_env_observed,
+                                               hormesis_index, n_new)
     }
-
     hormesis_index <- hormesis_index + n_new
-
     # In the output return only the values at the original concentrations
     # and exclude those at the interpolated concentrations:
-    exclude <- seq(subhormesis_index + 1, hormesis_index - 1)
-    keep <- !seq_along(concentration) %in% exclude
+    keep <- !seq_along(concentration) %in% seq(hormesis_index - n_new, hormesis_index - 1)
 
 
     # effect_tox ----------------------------------------------------------
-    effect_tox <- effect_tox_observed
-    effect_tox[1] <- 1
-    effect_to_fit_idx <- 2:(hormesis_index - 1)
-    effect_tox[effect_to_fit_idx] <- NA
-    effect_tox_mod <- drc::drm(
-        effect_tox ~ concentration,
-        fct = drc::W1.2()
-    )
-    options(warn_error_original)
-    effect_tox <- predict(
-        effect_tox_mod,
-        data.frame(concentration = concentration)
-    )
+    effect_tox <- c(1, effect_tox_observed[-1])
+    effect_tox[2:(hormesis_index - 1)] <- NA
+    effect_tox_mod <- drc::drm(effect_tox ~ concentration, fct = drc::W1.2())
+    options(original_options["warn"])
+    effect_tox <- predict(effect_tox_mod, data.frame(concentration = concentration))
     output$effect_tox_mod <- effect_tox_mod
     output$effect_tox <- effect_tox[keep] * effect_max
 
-
-    # system stress without environmental stress --------------------------
-    stress_tox_observed <- effect_to_stress(
-        effect_tox_observed, p, q
-    )
     stress_tox <- effect_to_stress(effect_tox, p, q)
     output$stress_tox <- stress_tox[keep]
-    sys_stress_tox <- stress_tox_observed - stress_tox
-    sys_stress_tox <- pmin(pmax(sys_stress_tox, 0), 1)
-    sys_stress_tox[hormesis_index:length(sys_stress_tox)] <- 0
-    # Add sys_stress_tox to the output before it is fitted:
-    output$sys_stress_tox <- sys_stress_tox[keep]
-    sys_stress_tox_mod <- tryCatch(
-        {
-            # There is no other way to suppress that one error message
-            # except by changing the options temporarily.
-            options(show.error.messages = FALSE)
-            drc::drm(sys_stress_tox ~ stress_tox, fct = drc::W1.3())
-        },
-        error = function(e) {
-            options(warn_error_original)
-            warning(
-                "Using a horizontal linear model for sys_stress_tox_mod ",
-                "because the Weibull model did not converge.",
-                call. = FALSE
-            )
-            # Failure to converge often happens when all or almost all sys
-            # stress values are zero. Fitting a linear model in this case seems
-            # to be the most appropriate remedy.
-            stress_tox <- range(stress_tox)
-            sys_stress_tox <- c(0, 0)
-            return(lm(sys_stress_tox ~ stress_tox))
-        },
-        finally = options(warn_error_original)
+
+
+    # system stress without environmental stress --------------------------
+    fit_sys_output <- fit_sys(
+        effect_to_stress(effect_tox_observed, p, q),
+        stress_tox,
+        stress_tox,
+        hormesis_index,
+        original_options
     )
-    output$sys_stress_tox_mod <- sys_stress_tox_mod
-    sys_stress_tox <- unname(
-        predict(sys_stress_tox_mod, data.frame(stress_tox))
-    )
+    output$sys_tox_not_fitted <- fit_sys_output$sys[keep]
+    output$sys_tox_mod <- fit_sys_output$sys_mod
+    if (inherits(fit_sys_output$sys_mod, "lm")) {
+        warning(
+            "Using a horizontal linear model for sys_tox_mod ",
+            "because the Weibull model did not converge."
+        )
+    }
+    sys_tox <- fit_sys_output$sys_modeled
+    output$sys_tox <- sys_tox
 
 
     # modeled effect without environmental stress -------------------------
-    stress_tox_sys <- stress_tox + sys_stress_tox
+    stress_tox_sys <- stress_tox + sys_tox
     effect_tox_sys <- stress_to_effect(stress_tox_sys, p, q)
     output$effect_tox_sys <- effect_tox_sys[keep] * effect_max
 
 
     if (with_env) {
         # env stress ------------------------------------------------------
-        stress_tox_env_observed <- effect_to_stress(
-            effect_tox_env_observed, p, q
-        )
+        stress_tox_env_observed <- effect_to_stress(effect_tox_env_observed, p, q)
         stress_env <- (stress_tox_env_observed - stress_tox)[hormesis_index]
-        stress_env <- pmax(stress_env, 0)
+        stress_env <- clamp(stress_env)
         output$stress_env <- stress_env
+
+        stress_tox_env <- stress_tox + stress_env
+        output$stress_tox_env <- stress_tox_env[keep]
+        effect_tox_env <- stress_to_effect(stress_tox_env, p, q)
+        output$effect_tox_env <- effect_tox_env[keep] * effect_max
 
 
         # system stress with environmental stress -------------------------
-        stress_tox_env <- stress_tox + stress_env
-        effect_tox_env <- stress_to_effect(stress_tox_env, p, q)
-        output$stress_tox_env <- stress_tox_env[keep]
-        output$effect_tox_env <- effect_tox_env[keep] * effect_max
-        sys_stress_tox_env <- stress_tox_env_observed - stress_tox_env
-        sys_stress_tox_env <- pmin(pmax(sys_stress_tox_env, 0), 1)
-        sys_stress_tox_env[hormesis_index:length(sys_stress_tox_env)] <- 0
-        # Add sys_stress_tox_env to the output before it is fitted:
-        output$sys_stress_tox_env <- sys_stress_tox_env[keep]
-        sys_stress_tox_env_mod <- tryCatch(
-            {
-                # There is no other way to suppress that one error message
-                # except by changing the options temporarily.
-                options(show.error.messages = FALSE)
-                drc::drm(sys_stress_tox_env ~ stress_tox, fct = drc::W1.3())
-            },
-            error = function(e) {
-                options(warn_error_original)
-                warning(
-                    "Using a horizontal linear model for ",
-                    "sys_stress_tox_env_mod because the Weibull model did ",
-                    "not converge.",
-                    call. = FALSE
-                )
-                # Failure to converge often happens when all or almost all sys
-                # stress values are zero. Fitting a linear model in this case
-                # seems to be the most appropriate remedy.
-                stress_tox <- range(stress_tox)
-                sys_stress_tox_env <- c(0, 0)
-                return(lm(sys_stress_tox_env ~ stress_tox))
-            },
-            finally = options(warn_error_original)
+        fit_sys_output <- fit_sys(
+            stress_tox_env_observed,
+            stress_tox_env,
+            stress_tox,
+            hormesis_index,
+            original_options
         )
-        output$sys_stress_tox_env_mod <- sys_stress_tox_env_mod
-        sys_stress_tox_env <- unname(
-            predict(sys_stress_tox_env_mod, data.frame(stress_tox))
-        )
+        output$sys_tox_env_not_fitted <- fit_sys_output$sys[keep]
+        output$sys_tox_env_mod <- fit_sys_output$sys_mod
+        if (inherits(fit_sys_output$sys_mod, "lm")) {
+            warning(
+                "Using a horizontal linear model for sys_tox_env_mod ",
+                "because the Weibull model did not converge."
+            )
+        }
+        sys_tox_env <- fit_sys_output$sys_modeled
+        output$sys_tox_env <- sys_tox_env
 
 
         # modeled effect with environmental stress ------------------------
-        stress_tox_env_sys <- stress_tox_env + sys_stress_tox_env
+        stress_tox_env_sys <- stress_tox_env + sys_tox_env
         effect_tox_env_sys <- stress_to_effect(stress_tox_env_sys, p, q)
         output$effect_tox_env_sys <- effect_tox_env_sys[keep] * effect_max
     }
-
-
-    # building the function -----------------------------------------------
-    fn <- function(conc) {
-        # This function returns all modeled values at the provided
-        # concentrations. conc = a vector of concentrations
-        stopifnot(is.numeric(conc))
-        effect_tox_simple_fn <- predict(
-            effect_tox_mod_simple,
-            data.frame(concentration = conc)
-        )
-        effect_tox_fn <- predict(
-            effect_tox_mod,
-            data.frame(concentration = conc)
-        )
-        stress_tox_fn <- effect_to_stress(effect_tox_fn, p, q)
-        sys_stress_tox_fn <- predict(
-            sys_stress_tox_mod,
-            data.frame(stress_tox = stress_tox_fn)
-        )
-        stress_tox_sys_fn <- stress_tox_fn + sys_stress_tox_fn
-        effect_tox_sys_fn <- stress_to_effect(stress_tox_sys_fn, p, q)
-
-        out_df <- data.frame(
-            concentration = conc,
-            effect_tox_simple = effect_tox_simple_fn * effect_max,
-            effect_tox = effect_tox_fn * effect_max,
-            effect_tox_sys = effect_tox_sys_fn * effect_max,
-            stress_tox = stress_tox_fn,
-            sys_stress_tox = sys_stress_tox_fn,
-            stress_tox_sys = stress_tox_sys_fn
-        )
-        if (with_env) {
-            effect_tox_env_simple_fn = predict(
-                effect_tox_env_mod_simple,
-                data.frame(concentration = conc)
-            )
-            stress_tox_env_fn <- stress_tox_fn + stress_env
-            effect_tox_env_fn <- stress_to_effect(
-                stress_tox_env_fn, p, q
-            )
-            sys_stress_tox_env_fn <- predict(
-                sys_stress_tox_env_mod,
-                data.frame(stress_tox = stress_tox_fn)
-            )
-            stress_tox_env_sys_fn <- stress_tox_env_fn +
-                sys_stress_tox_env_fn
-            effect_tox_env_sys_fn <- stress_to_effect(
-                stress_tox_env_sys_fn, p, q
-            )
-            out_df <- cbind(out_df, data.frame(
-                effect_tox_env_simple = effect_tox_env_simple_fn * effect_max,
-                effect_tox_env = effect_tox_env_fn * effect_max,
-                effect_tox_env_sys = effect_tox_env_sys_fn * effect_max,
-                stress_env = stress_env,
-                stress_tox_env = stress_tox_env_fn,
-                sys_stress_tox_env = sys_stress_tox_env_fn,
-                stress_tox_env_sys = stress_tox_env_sys_fn
-            ))
-        }
-        out_df
-    }
-
-    output$fn <- fn
 
 
     # smooth curves -------------------------------------------------------
@@ -482,12 +251,14 @@ ecxsys <- function(concentration,
     # 0 but because it's a log axis I have to make the values just really
     # small. The concentrations in the gap won't be used for plotting later.
     n_smooth <- 1000  #  number of points to approximate the curves
+    conc_adjust_factor <- 10^-5
+    output$conc_adjust_factor <- conc_adjust_factor
     concentration_smooth <- 10 ^ seq(
         log10(min_conc * conc_adjust_factor),
         log10(max(concentration)),
         length.out = n_smooth
     )
-    output$curves <- fn(concentration_smooth)
+    output$curves <- predict_ecxsys(output, concentration_smooth)
     output$curves$use_for_plotting <-
         concentration_smooth < min_conc * conc_adjust_factor * 1.5 |
         concentration_smooth > min_conc * 1.5
@@ -512,4 +283,100 @@ reset_options <- function(original_options) {
         }
     }
     options(changed)
+}
+
+
+fit_sys <- function(stress_external_observed,
+                    stress_external_modeled,
+                    stress_tox,
+                    hormesis_index,
+                    original_options) {
+    sys <- stress_external_observed - stress_external_modeled
+    sys <- clamp(sys)
+    sys[hormesis_index:length(sys)] <- 0
+    # Add sys to the output before it is fitted:
+    out <- list(sys = sys)
+    sys_mod <- tryCatch(
+        {
+            # There is no other way to suppress that one error message
+            # from optim except by changing the options temporarily.
+            warn_error_original <- original_options[c("warn", "show.error.messages")]
+            options(show.error.messages = FALSE)
+            drc::drm(sys ~ stress_tox, fct = drc::W1.3())
+        },
+        error = function(e) {
+            # Failure to converge often happens when all or almost all sys
+            # stress values are zero. Fitting a linear model in this case seems
+            # to be the most appropriate remedy.
+            stress_tox <- range(stress_tox)
+            sys <- c(0, 0)
+            lm(sys ~ stress_tox)
+        },
+        finally = options(warn_error_original)
+    )
+    out$sys_mod <- sys_mod
+    out$sys_modeled <- unname(
+        predict(sys_mod, data.frame(stress_tox = stress_tox))
+    )
+    out
+}
+
+
+moving_weighted_mean <- function(x) {
+    # This is used to smooth out points which are jumping up and down.
+    count <- rep(1, length(x))
+    x_diff <- diff(x) * -1
+    while (any(x_diff < 0, na.rm = TRUE)) {
+        i <- which(x_diff < 0)[1]
+        j <- i + 1
+        x[i] <- weighted.mean(x[i:j], count[i:j])
+        x <- x[-j]
+        count[i] <- count[i] + count[j]
+        count <- count[-j]
+        x_diff <- diff(x) * -1
+    }
+    rep(x, count)
+}
+
+
+fit_LL5_model <- function(min_conc,
+                          concentration,
+                          effect_observed,
+                          original_options) {
+    # The traditional log-logistic model, here using the five-parameter
+    # log-logistic function drc::LL.5.
+    conc_with_control_shifted <- c(min_conc, concentration[-1])
+    effect_observed_averaged <- moving_weighted_mean(effect_observed)
+    interpolated <- approx(
+        log10(conc_with_control_shifted),
+        effect_observed_averaged,
+        n = 10
+    )
+    conc_interpolated <- 10^interpolated$x
+    effect_interpolated <- interpolated$y
+    effect_LL5_mod <- drc::drm(
+        effect_interpolated ~ conc_interpolated,
+        fct = drc::LL.5(fixed = c(NA, 0, effect_observed_averaged[1], NA, NA))
+    )
+    options(original_options["warn"])
+    effect_LL5 <- predict(
+        effect_LL5_mod,
+        data.frame(conc_interpolated = concentration)
+    )
+    list(
+        effect_LL5_mod = effect_LL5_mod,
+        effect_LL5 = effect_LL5
+    )
+}
+
+
+interpolate <- function(x, to_index, n_new, conc = FALSE) {
+    from_index <- to_index - 1  # subhormesis_index
+    len <- n_new + 2  # Add 2 because seq() includes the left and right end.
+    if (conc) {
+        x_new <- 10^seq(log10(x[from_index]), log10(x[to_index]), length.out = len)
+    } else {
+        x_new <- seq(x[from_index], x[to_index], length.out = len)
+    }
+    append(x, x_new[-c(1, len)], from_index)
 }

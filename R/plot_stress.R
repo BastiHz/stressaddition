@@ -1,6 +1,7 @@
 #' @rdname plot_ecxsys
 #' @export
-plot_system_stress <- function(model, show_legend = FALSE) {
+plot_stress <- function(model, show_legend = FALSE) {
+    stopifnot(inherits(model, "ecxsys"))
     temp <- adjust_smooth_concentrations(
         model$curves,
         model$conc_adjust_factor
@@ -8,8 +9,7 @@ plot_system_stress <- function(model, show_legend = FALSE) {
     curves <- temp$curves
     axis_break_conc <- temp$axis_break_conc
     log_ticks <- get_log_ticks(curves$concentration)
-    # FIXME: Don't overwrite this arg. Make a new variable instead.
-    model$args$concentration[1] <- curves$concentration[1]
+    concentration <- c(curves$concentration[1], model$args$concentration[-1])
 
     plot(
         NA,
@@ -23,43 +23,43 @@ plot_system_stress <- function(model, show_legend = FALSE) {
         las = 1,
         bty = "L"
     )
+
     lines(
         curves$concentration,
-        curves$sys_stress_tox,
+        curves$sys_tox,
         col = "blue"
     )
     points(
-        model$args$concentration,
-        model$sys_stress_tox,
+        concentration,
+        model$sys_tox_not_fitted,
         pch = 16,
         col = "blue"
     )
+
     if (model$with_env) {
         lines(
             curves$concentration,
-            curves$sys_stress_tox_env,
+            curves$sys_tox_env,
             col = "red"
         )
         points(
-            model$args$concentration,
-            model$sys_stress_tox_env,
+            concentration,
+            model$sys_tox_env_not_fitted,
             pch = 16,
             col = "red"
         )
     }
+
     axis(1, at = log_ticks$major, labels = log_ticks$major_labels)
     axis(1, at = log_ticks$minor, labels = FALSE, tcl = -0.25)
     plotrix::axis.break(1, breakpos = axis_break_conc)
+
     if (show_legend) {
-        legend_text <- c(
-            # TODO: Maybe do proper subscript in legend
-            "system stress (tox)",
-            "system stress (tox+env)"
-        )
-        legend_col <- c("blue", "red")
-        if (!model$with_env) {
-            legend_text <- legend_text[1]
-            legend_col <- legend_col[1]
+        legend_text <- c("tox")
+        legend_col <- c("blue")
+        if (model$with_env) {
+            legend_text <- c(legend_text, "tox + env")
+            legend_col <- c(legend_col, "red")
         }
         legend(
             "topright",

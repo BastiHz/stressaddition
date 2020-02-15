@@ -1,3 +1,20 @@
+# stressaddition 2.0.0
+
+* Changed the order of arguments in `ecxsys()`.
+* Removed `hormesis_index` argument from `ecxsys()`. Use `hormesis_concentration` instead.
+* New function `predict_ecxsys()` replaces `fn()` from the `ecxsys()` output.
+* Renamed the arguments in `ec()`.
+* Made `ec()` more flexible. It now also accepts a data.frame with a concentration column and a column of response values.
+* Added LL5 curves to the legend of `plot_effect()`.
+* Replaced every occurrence of "simple" in variable names with "LL5".
+* Replaced every occurrence of "sys_stress" in variable names with "sys" because the extra "stress" was redundant.
+* Renamed `plot_system_stress()` to `plot_stress()` because it is planned to plot more stresses with this function in a future update.
+* Changed the order of the columns in the output of `predict_ecxsys()`.
+* Improved the internal structure of the package.
+* Improved the tests.
+* Improved the documentation.
+
+
 # stressaddition 1.11.1
 
 * First public version.

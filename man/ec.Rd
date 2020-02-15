@@ -4,40 +4,59 @@
 \alias{ec}
 \title{Effect Concentrations}
 \usage{
-ec(model, effect_name, target_effect)
+ec(model, response_name, response_level)
 }
 \arguments{
-\item{model}{The object returned from \code{ecxsys()}.}
+\item{model}{This can be one of three types of objects: Either the output of
+\code{\link{ecxsys}} or the output of \code{\link{predict_ecxsys}} or a
+data frame with a "concentration" column and a \code{response_name} column.
+See the examples.}
 
-\item{effect_name}{The name of the effect for which you want to calculate the
-EC. Must be the name of a column in \code{model$curves}.}
+\item{response_name}{The name of the effect or stress for which you want to
+calculate the EC. Must be one of \code{colnames(model$curves)}.}
 
-\item{target_effect}{The desired effect percentage between 0 and 100. For
-example with the value 10 the function will return the EC10, i.e. the
-concentration where the response falls below 90 \% of the maximum possible
+\item{response_level}{The desired response level as a percentage between 0
+and 100. For example with the value 10 the function will return the EC10,
+i.e. the concentration where the response falls below 90 \% of the maximum
 response.}
 }
 \value{
-A list containing the effect concentration and the corresponding
-  effect.
+A list containing the response concentration and the corresponding
+  response value.
 }
 \description{
-Estimate the concentration to reach a certain effect relative to the control.
+Estimate the concentration to reach a certain effect or stress level relative
+to the control.
 }
 \details{
 If the response level occurs multiple times because of hormesis, which may
-happen for low values of \code{target_effect}, then the occurrence with the
+happen for low values of \code{response_level}, then the occurrence with the
 smallest concentration is returned.
 }
 \examples{
+# Calculate the EC_10, the concentration where the effect falls
+# below 90 \% of the effect in the control.
+
 model <- ecxsys(
     concentration = c(0, 0.03, 0.3, 3, 10),
     effect_tox_observed = c(85, 76, 94, 35, 0),
-    effect_tox_env_observed = c(24, 23, 32, 0, 0),
     hormesis_concentration = 0.3
 )
-# Calculate the EC_10, the concentration where the effect falls
-# below 90 \% of the effect in the control:
-ec_10 <- ec(model, "effect_tox_sys", 10)
+
+# using the ecxsys() output or the curves therein directly:
+ec(model, "effect_tox_sys", 10)
+ec(model$curves, "effect_tox_sys", 10)
+
+# using the output of predict_ecxsys() with custom concentrations:
+conc <- 10^seq(-9, 1, length.out = 1000)
+curves <- predict_ecxsys(model, conc)
+ec(curves, "effect_tox_sys", 10)
+
+# using a custom data frame:
+df_custom <- data.frame(
+    concentration = curves$concentration,
+    foo = curves$effect_tox_sys
+)
+ec(df_custom, "foo", 10)
 
 }

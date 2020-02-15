@@ -2,6 +2,10 @@
 # ?`stressaddition-package`. Some people recommend using "@keywords internal"
 # here to exclude this page from the help index but I'm not going to do that.
 
+# "_PACKAGE" automatically populates most sections in this package
+# documentation, so I don't need to manually fill in authors, title or
+# description.
+
 
 #' @details See the publication linked below for more information including
 #'   equations.
@@ -23,8 +27,3 @@
 #' @import graphics
 #' @import grDevices
 "_PACKAGE"
-
-
-# "_PACKAGE" automatically populates most sections in this package
-# documentation, so I don't need to manually fill in authors, title or
-# description.
