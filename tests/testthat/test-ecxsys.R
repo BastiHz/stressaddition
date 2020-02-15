@@ -3,65 +3,67 @@ context("ecxsys")
 
 # Create model here for use in the various tests to save typing:
 mod <- ecxsys(
-    effect_tox_observed = c(85, 76, 94, 35, 0),
-    effect_tox_env_observed = c(24, 23, 32, 0, 0),
     concentration = c(0, 0.03, 0.3, 3, 10),
-    hormesis_index = 3
-    # hormesis_concentration = 0.3
+    hormesis_concentration = 0.3,
+    effect_tox_observed = c(85, 76, 94, 35, 0),
+    effect_tox_env_observed = c(24, 23, 32, 0, 0)
 )
 
 
-test_that("error when both hormesis arguments passed to ecxsys", {
-    expect_error(
-        ecxsys(
-            effect_tox_observed = c(85, 76, 94, 35, 0),
-            concentration = c(0, 0.03, 0.3, 3, 10),
-            hormesis_index = 3,
-            hormesis_concentration = 0.3
-        )
-    )
-})
-
-
 test_that("error when hormesis_concentration not in concentration", {
+    errorm <- "hormesis_concentration must equal one of the concentration values."
     expect_error(
         ecxsys(
-            effect_tox_observed = c(85, 76, 94, 35, 0),
             concentration = c(0, 0.03, 0.3, 3, 10),
-            hormesis_concentration = 0.4
-        )
+            hormesis_concentration = 0.4,
+            effect_tox_observed = c(85, 76, 94, 35, 0)
+        ),
+        errorm,
+        fixed = TRUE
+    )
+    expect_error(
+        ecxsys(
+            concentration = c(0, 0.03, 0.3, 3, 10),
+            hormesis_concentration = 30,
+            effect_tox_observed = c(85, 76, 94, 35, 0)
+        ),
+        errorm,
+        fixed = TRUE
     )
 })
 
 
 test_that("error when hormesis_index <= 2 or >= (length(concentration))", {
-    expect_error(
-        ecxsys(
-            effect_tox_observed = c(85, 76, 94, 35, 0),
-            concentration = c(0, 0.03, 0.3, 3, 10),
-            hormesis_index = 1
-        )
+    errorm <- paste(
+        "hormesis_concentration must be greater than the lowest",
+        "non-control concentration and less than the highest concentration"
     )
     expect_error(
         ecxsys(
-            effect_tox_observed = c(85, 76, 94, 35, 0),
             concentration = c(0, 0.03, 0.3, 3, 10),
-            hormesis_index = 2
-        )
+            hormesis_concentration = 0,
+            effect_tox_observed = c(85, 76, 94, 35, 0)
+        ),
+        errorm,
+        fixed = TRUE
     )
     expect_error(
         ecxsys(
-            effect_tox_observed = c(85, 76, 94, 35, 0),
             concentration = c(0, 0.03, 0.3, 3, 10),
-            hormesis_index = 5
-        )
+            hormesis_concentration = 0.03,
+            effect_tox_observed = c(85, 76, 94, 35, 0)
+        ),
+        errorm,
+        fixed = TRUE
     )
     expect_error(
         ecxsys(
-            effect_tox_observed = c(85, 76, 94, 35, 0),
             concentration = c(0, 0.03, 0.3, 3, 10),
-            hormesis_index = 6
-        )
+            hormesis_concentration = 10,
+            effect_tox_observed = c(85, 76, 94, 35, 0)
+        ),
+        errorm,
+        fixed = TRUE
     )
 })
 
@@ -73,112 +75,81 @@ test_that("min(concentration) == 0 is shifted the correct amount", {
 
 test_that("the discrete results have not changed", {
     expect_equal(
-        round(mod$effect_tox_simple, 3),
-        c(85.000, 84.542, 78.946, 31.959, 2.610)
+        mod$effect_tox_LL5,
+        c(85, 84.5420, 78.9464, 31.9586, 2.6096),
+        tolerance = 1e-4
     )
     expect_equal(
-        round(mod$effect_tox, 3),
-        c(100.000, 99.676, 94.320, 34.860, 0.840)
+        mod$effect_tox,
+        c(100, 99.6760, 94.3198, 34.8601, 0.8400),
+        tolerance = 1e-4
     )
     expect_equal(
-        round(mod$stress_tox, 3),
-        c(0.000, 0.078, 0.207, 0.579, 0.893)
+        mod$stress_tox,
+        c(0, 0.0784, 0.2067, 0.5794, 0.8927),
+        tolerance = 1e-4
     )
     expect_equal(
-        round(mod$sys_stress_tox, 3),
-        c(0.296, 0.280, 0.000, 0.000, 0.000)
+        mod$sys_tox_not_fitted,
+        c(0.2965, 0.2795, 0, 0, 0),
+        tolerance = 1e-4
     )
     expect_equal(
-        round(mod$effect_tox_sys, 3),
-        c(84.791, 77.481, 93.138, 34.86, 0.84)
+        mod$effect_tox_sys,
+        c(84.7912, 77.4811, 93.1380, 34.8602, 0.8400),
+        tolerance = 1e-4
     )
-    expect_equal(round(mod$stress_env, 3), 0.388)
+    expect_equal(mod$stress_env, 0.3885, tolerance = 1e-3)
     expect_equal(
-        round(mod$effect_tox_env_simple, 3),
-        c(26.333, 26.333, 26.062, 0.710, 0.037)
-    )
-    expect_equal(
-        round(mod$stress_tox_env, 3),
-        c(0.388, 0.467, 0.595, 0.968, 1.281)
+        mod$effect_tox_env_LL5,
+        c(26.3333, 26.3333, 26.0620, 0.7104, 0.0374),
+        tolerance = 1e-4
     )
     expect_equal(
-        round(mod$effect_tox_env, 3),
-        c(70.879, 56.414, 32.000, 0.020, 0.000)
+        mod$stress_tox_env,
+        c(0.3884, 0.4669, 0.5952, 0.9679, 1.2812),
+        tolerance = 1e-4
     )
     expect_equal(
-        round(mod$sys_stress_tox_env, 3),
-        c(0.254, 0.181, 0.000, 0.000, 0.000)
+        mod$effect_tox_env,
+        c(70.8786, 56.4138, 32, 0.0202, 0),
+        tolerance = 1e-4
     )
     expect_equal(
-        round(mod$effect_tox_env_sys, 3),
-        c(24.325, 22.323, 29.386, 0.020, 0.000)
+        mod$sys_tox_env_not_fitted,
+        c(0.2537, 0.1815, 0, 0, 0),
+        tolerance = 1e-4
+    )
+    expect_equal(
+        mod$effect_tox_env_sys,
+        c(24.3254, 22.3232, 29.3860, 0.0202, 0),
+        tolerance = 1e-4
     )
 })
 
 
-test_that("the smooth curves have not changed", {
-    curves <- mod$curves
-    i <- c(1, 714, 810, 905, 1000)
-    expect_equal(
-        round(curves$concentration[i], 3),
-        c(0.000, 0.014, 0.125, 1.120, 10.000)
+test_that("the curves have not changed", {
+    new_curves <- mod$curves[c(1, 714, 810, 905, 1000), ]  # random indices
+    rownames(new_curves) <- NULL
+    reference_curves <- data.frame(
+        concentration = c(0.0000, 0.0137, 0.1253, 1.1196, 10.0000),
+        effect_tox_LL5 = c(85.0000, 84.8116, 82.6996, 61.2882, 2.6096),
+        effect_tox_env_LL5 = c(26.3333, 26.3333, 26.3289, 7.5384, 0.0374),
+        effect_tox = c(100.0000, 99.8787, 98.0645, 73.6652, 0.8400),
+        stress_tox = c(0.0001, 0.0570, 0.1421, 0.3721, 0.8927),
+        sys_tox = c(0.2980, 0.2887, 0.1336, 0.0000, 0.0000),
+        stress_tox_sys = c(0.2981, 0.3457, 0.2757, 0.3721, 0.8927),
+        effect_tox_sys = c(84.7797, 77.9323, 87.5799, 73.6652, 0.8400),
+        stress_env = c(0.3885, 0.3885, 0.3885, 0.3885, 0.3885),
+        stress_tox_env = c(0.3886, 0.4455, 0.5306, 0.7606, 1.2812),
+        effect_tox_env = c(70.8634, 60.4957, 44.0834, 8.5137, 0.0000),
+        sys_tox_env = c(0.2516, 0.2175, 0.0762, 0.0000, 0.0000),
+        stress_tox_env_sys = c(0.6402, 0.6630, 0.6068, 0.7606, 1.2812),
+        effect_tox_env_sys = c(24.3112, 20.7272, 29.9481, 8.5133, 0.0000),
+        use_for_plotting = c(TRUE, TRUE, TRUE, TRUE, TRUE)
     )
-    expect_equal(
-        round(curves$effect_tox_simple[i], 3),
-        c(85.000, 84.812, 82.700, 61.288, 2.610)
-    )
-    expect_equal(
-        round(curves$effect_tox[i], 3),
-        c(100.000, 99.879, 98.064, 73.665, 0.840)
-    )
-    expect_equal(
-        round(curves$effect_tox_sys[i], 3),
-        c(84.780, 77.932, 87.580, 73.665, 0.840)
-    )
-    expect_equal(
-        round(curves$stress_tox[i], 3),
-        c(0.000, 0.057, 0.142, 0.372, 0.893)
-    )
-    expect_equal(
-        round(curves$sys_stress_tox[i], 3),
-        c(0.298, 0.289, 0.134, 0.000, 0.000)
-    )
-    expect_equal(
-        round(curves$stress_tox_sys[i], 3),
-        c(0.298, 0.346, 0.276, 0.372, 0.893)
-    )
-    expect_equal(
-        round(curves$effect_tox_env[i], 3),
-        c(70.863, 60.496, 44.083, 8.514, 0)
-    )
-    expect_equal(
-        round(curves$effect_tox_env_sys[i], 3),
-        c(24.311, 20.727, 29.948, 8.513, 0.000)
-    )
-    expect_equal(
-        round(curves$stress_env[i], 3),
-        c(0.388, 0.388, 0.388, 0.388, 0.388)
-    )
-    expect_equal(
-        round(curves$effect_tox_env_simple[i], 3),
-        c(26.333, 26.333, 26.329, 7.538, 0.037)
-    )
-    expect_equal(
-        round(curves$stress_tox_env[i], 3),
-        c(0.389, 0.445, 0.531, 0.761, 1.281)
-    )
-    expect_equal(
-        round(curves$sys_stress_tox_env[i], 3),
-        c(0.252, 0.218, 0.076, 0.000, 0.000)
-    )
-    expect_equal(
-        round(curves$stress_tox_env_sys[i], 3),
-        c(0.640, 0.663, 0.607, 0.761, 1.281)
-    )
-    expect_equal(
-        curves$use_for_plotting[i],
-        c(TRUE, TRUE, TRUE, TRUE, TRUE)
-    )
+    class(new_curves) <- class(reference_curves)
+    expect_equal(new_curves, reference_curves, tolerance = 1e-3)
 })
 
 
@@ -186,36 +157,38 @@ test_that("the returned fn works the same way as internally", {
     # I don't know why it would fail but it doesn't hurt to test it.
     curves <- mod$curves
     curves$use_for_plotting <- NULL  # remove column "use_for_plotting"
-    expect_identical(curves, mod$fn(curves$concentration))
+    expect_identical(curves, predict_ecxsys(mod, curves$concentration))
 })
 
 
 test_that("function arguments are returned unchanged", {
-    expect_equal(mod$args$effect_tox_observed, c(85, 76, 94, 35, 0))
-    expect_equal(mod$args$effect_tox_env_observed, c(24, 23, 32, 0, 0))
-    expect_equal(mod$args$concentration, c(0, 0.03, 0.3, 3, 10))
-    expect_equal(mod$args$hormesis_index, 3)
-    # expect_equal(mod$args$hormesis_concentration, 0.3)
-    expect_equal(mod$args$effect_max, 100)
-    expect_equal(mod$args$p, 3.2)
-    expect_equal(mod$args$q, 3.2)
+    args_reference <- list(
+        concentration = c(0, 0.03, 0.3, 3, 10),
+        hormesis_concentration = 0.3,
+        effect_tox_observed = c(85, 76, 94, 35, 0),
+        effect_tox_env_observed = c(24, 23, 32, 0, 0),
+        effect_max = 100,
+        p = 3.2,
+        q = 3.2
+    )
+    expect_identical(args_reference, mod$args)
 })
 
 
 test_that("results are independent of concentration shift", {
     mod_2 <- ecxsys(
-        effect_tox_observed = c(85, 76, 94, 35, 0),
-        effect_tox_env_observed = c(24, 23, 32, 0, 0),
         concentration = c(0, 0.03, 0.3, 3, 10) * 2,
-        hormesis_index = 3
+        hormesis_concentration = 0.3 * 2,
+        effect_tox_observed = c(85, 76, 94, 35, 0),
+        effect_tox_env_observed = c(24, 23, 32, 0, 0)
     )
     expect_equal(mod$effect_tox_sys, mod_2$effect_tox_sys)
     expect_equal(mod$effect_tox_env_sys, mod_2$effect_tox_env_sys)
     mod_10 <- ecxsys(
-        effect_tox_observed = c(85, 76, 94, 35, 0),
-        effect_tox_env_observed = c(24, 23, 32, 0, 0),
         concentration = c(0, 0.03, 0.3, 3, 10) * 10,
-        hormesis_index = 3
+        hormesis_concentration = 0.3 * 10,
+        effect_tox_observed = c(85, 76, 94, 35, 0),
+        effect_tox_env_observed = c(24, 23, 32, 0, 0)
     )
     # Concentration shifts by factors other than powers of 10 will affect
     # the result because of the way the zero concentration is "corrected".
@@ -230,9 +203,9 @@ test_that("results are independent of concentration shift", {
 
 test_that("effect_tox_env_observed can be left out", {
     mod_without_env <- ecxsys(
-        effect_tox_observed = c(85, 76, 94, 35, 0),
         concentration = c(0, 0.03, 0.3, 3, 10),
-        hormesis_index = 3
+        hormesis_concentration = 0.3,
+        effect_tox_observed = c(85, 76, 94, 35, 0)
     )
     expect_equal(mod$effect_tox_sys, mod_without_env$effect_tox_sys)
     expect_equal(mod$curves$effect_tox_sys,
@@ -240,12 +213,17 @@ test_that("effect_tox_env_observed can be left out", {
 })
 
 
-test_that("model not converging produces warnings", {
+test_that("sys model not converging produces a warning, not an error", {
     expect_warning(
         ecxsys(
             concentration = c(0, 0.1, 0.5, 1, 10, 33),
-            effect_tox_observed = c(98, 98, 96, 76, 26, 0),
-            hormesis_index = 3
-        )
+            hormesis_concentration = 0.5,
+            effect_tox_observed = c(98, 98, 96, 76, 26, 0)
+        ),
+        paste(
+            "Using a horizontal linear model for sys_tox_mod because the",
+            "Weibull model did not converge."
+        ),
+        fixed = TRUE
     )
 })

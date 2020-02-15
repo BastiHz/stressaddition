@@ -1,56 +1,94 @@
 #' Effect Concentrations
 #'
-#' Estimate the concentration to reach a certain effect relative to the control.
+#' Estimate the concentration to reach a certain effect or stress level relative
+#' to the control.
 #'
 #' If the response level occurs multiple times because of hormesis, which may
-#' happen for low values of \code{target_effect}, then the occurrence with the
+#' happen for low values of \code{response_level}, then the occurrence with the
 #' smallest concentration is returned.
 #'
-#' @param model The object returned from \code{ecxsys()}.
-#' @param effect_name The name of the effect for which you want to calculate the
-#'   EC. Must be the name of a column in \code{model$curves}.
-#' @param target_effect The desired effect percentage between 0 and 100. For
-#'   example with the value 10 the function will return the EC10, i.e. the
-#'   concentration where the response falls below 90 \% of the maximum possible
+#' @param model This can be one of three types of objects: Either the output of
+#'   \code{\link{ecxsys}} or the output of \code{\link{predict_ecxsys}} or a
+#'   data frame with a "concentration" column and a \code{response_name} column.
+#'   See the examples.
+#' @param response_name The name of the effect or stress for which you want to
+#'   calculate the EC. Must be one of \code{colnames(model$curves)}.
+#' @param response_level The desired response level as a percentage between 0
+#'   and 100. For example with the value 10 the function will return the EC10,
+#'   i.e. the concentration where the response falls below 90 \% of the maximum
 #'   response.
 #'
-#' @return A list containing the effect concentration and the corresponding
-#'   effect.
+#' @return A list containing the response concentration and the corresponding
+#'   response value.
 #'
-#' @examples model <- ecxsys(
+#' @examples # Calculate the EC_10, the concentration where the effect falls
+#' # below 90 % of the effect in the control.
+#'
+#' model <- ecxsys(
 #'     concentration = c(0, 0.03, 0.3, 3, 10),
 #'     effect_tox_observed = c(85, 76, 94, 35, 0),
-#'     effect_tox_env_observed = c(24, 23, 32, 0, 0),
 #'     hormesis_concentration = 0.3
 #' )
-#' # Calculate the EC_10, the concentration where the effect falls
-#' # below 90 % of the effect in the control:
-#' ec_10 <- ec(model, "effect_tox_sys", 10)
+#'
+#' # using the ecxsys() output or the curves therein directly:
+#' ec(model, "effect_tox_sys", 10)
+#' ec(model$curves, "effect_tox_sys", 10)
+#'
+#' # using the output of predict_ecxsys() with custom concentrations:
+#' conc <- 10^seq(-9, 1, length.out = 1000)
+#' curves <- predict_ecxsys(model, conc)
+#' ec(curves, "effect_tox_sys", 10)
+#'
+#' # using a custom data frame:
+#' df_custom <- data.frame(
+#'     concentration = curves$concentration,
+#'     foo = curves$effect_tox_sys
+#' )
+#' ec(df_custom, "foo", 10)
 #'
 #' @export
-ec <- function(model, effect_name, target_effect) {
-    stopifnot(
-        is.character(effect_name),
-        length(effect_name) == 1,
-        effect_name %in% names(model$curves),
-        effect_name != "concentration",
-        target_effect > 0,
-        target_effect < 100
-    )
-    effect <- model$curves[, effect_name]
-    concentration <- model$curves$concentration
-    control_effect <- effect[1]
-    if (control_effect == 0) {
-        stop("Reference effect is zero, calculation of EC not possible.")
+ec <- function(model, response_name, response_level) {
+    if (inherits(model, "drc")) {
+        stop("Please use drc::ED for drc objects.")
     }
-    target_effect <- (1 - target_effect / 100) * control_effect
-    output <- list(effect = target_effect)
-    # Get the index of where the effect changes from above to below
-    # target_effect:
-    below <- which(effect < target_effect)[1]
+
+    stopifnot(
+        is.character(response_name),
+        length(response_name) == 1,
+        response_name != "concentration",
+        response_level > 0,
+        response_level < 100
+    )
+
+    if (!inherits(model, c("ecxsys", "ecxsys_predicted"))) {
+        if (is.data.frame(model)) {
+            concentration <- model$concentration
+            response <- model[, response_name]
+        } else {
+            stop("Invalid first argument.")
+        }
+    } else if (inherits(model, "ecxsys")) {
+        concentration <- model$curves$concentration
+        response <- model$curves[, response_name]
+    } else if (inherits(model, "ecxsys_predicted")) {
+        concentration <- model$concentration
+        response <- model[, response_name]
+    }
+
+    reference <- response[1]
+    if (reference == 0) {
+        stop("Reference value is zero, calculation of EC not possible.")
+    }
+    response_level <- (1 - response_level / 100) * reference
+    output <- list(response_value = response_level)
+
+    # Get the index of where the response changes from above to below
+    # response_level:
+    below <- which(response < response_level)[1]
     above <- below - 1
+
     # linear interpolation
-    dist <- (target_effect - effect[below]) / (effect[above] - effect[below])
+    dist <- (response_level - response[below]) / (response[above] - response[below])
     output$concentration <- dist *
         (concentration[above] - concentration[below]) + concentration[below]
     output

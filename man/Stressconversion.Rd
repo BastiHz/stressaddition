@@ -11,11 +11,12 @@ effect_to_stress(effect, p = 3.2, q = 3.2)
 stress_to_effect(stress, p = 3.2, q = 3.2)
 }
 \arguments{
-\item{effect}{One or more effect values to convert to general stress.
-Should be a value between 0 and 1. Smaller or bigger values are treated as
-0 or 1 respectively.}
+\item{effect}{One or more effect values to convert to general stress. Should
+be a value between 0 and 1. Smaller or bigger values are treated as 0 or 1
+respectively.}
 
-\item{p, q}{The shape parameters of the beta distribution. Default is 3.2.}
+\item{p, q}{The shape parameters of the \code{\link[stats:Beta]{beta}}
+distribution. Default is 3.2.}
 
 \item{stress}{One or more stress values to convert to effect.}
 }
@@ -27,7 +28,7 @@ distribution.
 These are simple wrappers around the beta distribution function
 \code{\link[stats:Beta]{pbeta}} and the beta quantile function
 \code{\link[stats:Beta]{qbeta}}. \code{stress_to_effect} returns
-\code{1 - pbeta(stress, p, q)}. \code{effect_to_stress} first clips the
+\code{1 - pbeta(stress, p, q)}. \code{effect_to_stress} first clamps the
 effect to the interval [0, 1] and then returns
 \code{qbeta(1 - effect, p, q)}.
 

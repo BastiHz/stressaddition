@@ -6,7 +6,7 @@
 #' These are simple wrappers around the beta distribution function
 #' \code{\link[stats:Beta]{pbeta}} and the beta quantile function
 #' \code{\link[stats:Beta]{qbeta}}. \code{stress_to_effect} returns
-#' \code{1 - pbeta(stress, p, q)}. \code{effect_to_stress} first clips the
+#' \code{1 - pbeta(stress, p, q)}. \code{effect_to_stress} first clamps the
 #' effect to the interval [0, 1] and then returns
 #' \code{qbeta(1 - effect, p, q)}.
 #'
@@ -15,11 +15,12 @@
 #'
 #' @name Stressconversion
 #'
-#' @param effect One or more effect values to convert to general stress.
-#'   Should be a value between 0 and 1. Smaller or bigger values are treated as
-#'   0 or 1 respectively.
+#' @param effect One or more effect values to convert to general stress. Should
+#'   be a value between 0 and 1. Smaller or bigger values are treated as 0 or 1
+#'   respectively.
 #' @param stress One or more stress values to convert to effect.
-#' @param p,q The shape parameters of the beta distribution. Default is 3.2.
+#' @param p,q The shape parameters of the \code{\link[stats:Beta]{beta}}
+#'   distribution. Default is 3.2.
 #'
 #' @examples
 #' stress <- 0.3
@@ -32,7 +33,8 @@ NULL
 #' @rdname Stressconversion
 #' @export
 effect_to_stress <- function(effect, p = 3.2, q = 3.2) {
-    effect <- pmin(pmax(effect, 0), 1)
+    stopifnot(p >= 0, q >= 0)
+    effect <- clamp(effect)
     qbeta(1 - effect, p, q)
 }
 
@@ -40,5 +42,6 @@ effect_to_stress <- function(effect, p = 3.2, q = 3.2) {
 #' @rdname Stressconversion
 #' @export
 stress_to_effect <- function(stress, p = 3.2, q = 3.2) {
+    stopifnot(p >= 0, q >= 0)
     1 - pbeta(stress, p, q)
 }
