@@ -4,7 +4,7 @@ This is the R implementation of the tri-phasic concentration-response model intr
 It allows modeling of ecotoxicological experiments where the response shows signs of a hormesis effect.
 
 ## Installation
-Stressaddition is not on CRAN. You can install the newest version from GitLab using the devtools package:
+Stressaddition is not on CRAN. You can install the most recent stable version from GitLab using the devtools package:
 ``` r
 # install.packages("devtools")
 devtools::install_gitlab("oekotox/stressaddition", host = "git.ufz.de")
