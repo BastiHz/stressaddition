@@ -1,0 +1,25 @@
+# Using the rocker/tidyverse image because it has devtools installed.
+
+.check_template: &check_job_template
+  only:
+    - master
+    - merge_requests
+    - tags
+  script:
+    - R -e 'devtools::install_deps(quiet = TRUE)'
+    - R -e 'devtools::check(error_on = "warning")'
+
+# latest version of the previous major R release
+check-previous:
+  image: rocker/tidyverse:3.5.3
+  <<: *check_job_template
+
+# latest R release
+check-latest:
+  image: rocker/tidyverse:latest
+  <<: *check_job_template
+
+# R development version
+check-devel:
+  image: rocker/tidyverse:devel
+  <<: *check_job_template

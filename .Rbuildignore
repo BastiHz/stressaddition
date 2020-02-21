@@ -6,3 +6,4 @@
 ^Notizen\.md$
 ^LICENSE\.txt$
 ^\.gitlab$
+^\.gitlab-ci\.yml$
