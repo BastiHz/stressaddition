@@ -20,7 +20,7 @@ Comment on any notes that come up during devtools::check().
 <!-- Please check `[x]` the applicable boxes. -->
 * [ ] This merge includes bug fixes or changes in the functionality of the package (whether they are user-visible or not).
     * [ ]  update documentation including examples (if necessary)
-    * [ ]  update NEWS.md
+    * [ ]  update and polish NEWS.md
     * [ ]  update version in DESCRIPTION
     * [ ]  update date in DESCRIPTION
 * [ ]  This merge introduces new features.
@@ -35,5 +35,5 @@ If this merge introduces a new version (major, minor or patch) to the
 master branch do these steps after the branch has been successfully merged:
 - git tag
 - build binary and source package
-- gitlab release including the builds
+- gitlab release and upload the builds
 -->

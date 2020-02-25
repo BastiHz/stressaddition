@@ -1,8 +1,8 @@
 Package: stressaddition
 Type: Package
 Title: Modeling Tri-Phasic Concentration-Response Relationships
-Version: 2.0.0
-Date: 2020-02-17
+Version: 2.1.0
+Date: 2020-02-25
 Authors@R: c(person("Sebastian", 
                     "Henz", 
                     role = c("aut", "cre"), 
@@ -28,10 +28,7 @@ Depends:
     R (>= 3.5)
 Imports: 
     drc (>= 3.0),
-    plotrix,
-    stats,
-    graphics,
-    grDevices
+    plotrix
 Suggests: 
     testthat (>= 2.1.0)
 RoxygenNote: 7.0.2

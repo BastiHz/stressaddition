@@ -25,9 +25,9 @@
 #' # below 90 % of the effect in the control.
 #'
 #' model <- ecxsys(
-#'     concentration = c(0, 0.03, 0.3, 3, 10),
-#'     effect_tox_observed = c(85, 76, 94, 35, 0),
-#'     hormesis_concentration = 0.3
+#'     concentration = c(0, 0.05, 0.5, 5, 30),
+#'     hormesis_concentration = 0.5,
+#'     effect_tox_observed = c(90, 81, 92, 28, 0)
 #' )
 #'
 #' # using the ecxsys() output or the curves therein directly:

@@ -1,6 +1,3 @@
-context("options")
-
-
 test_that("user options are not permanently changed by ecxsys()", {
     # drc::drm() messes with the options and fails to return them to their
     # previous values. And options are temporarily modified in ecxsys(). This
@@ -13,10 +10,10 @@ test_that("user options are not permanently changed by ecxsys()", {
 
     original_options <- options()
     model <- ecxsys(
-        concentration = c(0, 0.03, 0.3, 3, 10),
-        effect_tox_observed = c(85, 76, 94, 35, 0),
-        effect_tox_env_observed = c(24, 23, 32, 0, 0),
-        hormesis_concentration = 0.3
+        concentration = c(0, 0.05, 0.5, 5, 30),
+        hormesis_concentration = 0.5,
+        effect_tox_observed = c(90, 81, 92, 28, 0),
+        effect_tox_env_observed = c(29, 27, 33, 5, 0)
     )
     new_options <- options()
 

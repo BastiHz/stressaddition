@@ -1,6 +1,3 @@
-context("plots")
-
-
 test_that("log ticks are correct", {
   x <- c(0.03, 0.3, 3, 30)
   ticks <- get_log_ticks(x)

@@ -33,12 +33,12 @@ get_log_ticks <- function(x) {
 }
 
 
-adjust_smooth_concentrations <- function(curves, conc_adjust_factor) {
+adjust_smooth_concentrations <- function(model) {
     # Helper for the plot functions, not exported.
     # Deals with the concentrations which are unnecessary for plotting.
     # This means it removes the concentrations in the gap and scales the
     # concentrations left of the gap up.
-
+    curves <- model$curves
     gap_idx <- min(which(!curves$use_for_plotting))
 
     # Keep only the values to the left and right of the axis break:
@@ -50,7 +50,7 @@ adjust_smooth_concentrations <- function(curves, conc_adjust_factor) {
 
     # Shift the small concentrations upwards so the plot has a nice x-axis:
     curves$concentration[1:gap_idx] <-
-        curves$concentration[1:gap_idx] / conc_adjust_factor
+        curves$concentration[1:gap_idx] / model$conc_adjust_factor
 
     list(
         curves = curves,
