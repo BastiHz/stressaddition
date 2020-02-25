@@ -2,12 +2,12 @@
 % Please edit documentation in R/predict_ecxsys.R
 \name{predict_ecxsys}
 \alias{predict_ecxsys}
-\title{Predict ECxSyS at various concentrations}
+\title{Predict effects and stresses}
 \usage{
 predict_ecxsys(model, concentration)
 }
 \arguments{
-\item{model}{The output of a call to \code{\link{ecxsys}}.}
+\item{model}{An ECx-SyS model as returned by \code{\link{ecxsys}}.}
 
 \item{concentration}{A numeric vector of concentrations.}
 }
@@ -15,14 +15,11 @@ predict_ecxsys(model, concentration)
 A data frame (of class "ecxsys_predicted") with the following
   columns:
   \describe{
-    \item{concentration}{Concentrations regularly spaced on a logarithmic
-    scale in the given concentration range. The control is approximated by
-    the lowest non-control concentration times 1e-7.}
-    \item{effect_tox_LL5}{The five-parameter log-logistic model of the
-    effect derived from the observations under toxicant stress but without
-    environmental stress.}
-    \item{effect_tox}{Modeled effect resulting from toxicant and system
-    stress.}
+    \item{concentration}{The supplied concentrations.}
+    \item{effect_tox_LL5}{The effect predicted by the five-parameter
+    log-logistic model derived from the observations under toxicant stress
+    but without environmental stress.}
+    \item{effect_tox}{Modeled effect resulting from toxicant stress.}
     \item{effect_tox_sys}{Modeled effect resulting from toxicant and system
     stress.}
     \item{stress_tox}{The toxicant stress.}
@@ -30,9 +27,9 @@ A data frame (of class "ecxsys_predicted") with the following
     without environmental stress.}
     \item{stress_tox_sys}{The sum of \code{stress_tox} and
     \code{sys_tox}.}
-    \item{effect_tox_env_LL5}{The five-parameter log-logistic model of the
-    effect derived from the observations under toxicant stress with
-    environmental stress.}
+    \item{effect_tox_env_LL5}{The effect predicted by the five-parameter
+    log-logistic model derived from the observations under toxicant stress
+    with environmental stress.}
     \item{effect_tox_env}{Modeled effect resulting from toxicant and
     environmental stress.}
     \item{effect_tox_env_sys}{Modeled effect resulting from toxicant,
@@ -46,13 +43,15 @@ A data frame (of class "ecxsys_predicted") with the following
   }
 }
 \description{
-Predict ECxSyS at various concentrations
+Calculate the effects and stresses of an ECx-SyS model at arbitrary
+concentrations.
 }
 \examples{
 model <- ecxsys(
-    concentration = c(0, 0.03, 0.3, 3, 10),
-    hormesis_concentration = 0.3,
-    effect_tox_observed = c(85, 76, 94, 35, 0)
+    concentration = c(0, 0.05, 0.5, 5, 30),
+    hormesis_concentration = 0.5,
+    effect_tox_observed = c(90, 81, 92, 28, 0),
+    effect_tox_env_observed = c(29, 27, 33, 5, 0)
 )
 p <- predict_ecxsys(model, c(0.001, 0.01, 0.1, 1, 10))
 

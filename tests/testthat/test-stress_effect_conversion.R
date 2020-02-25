@@ -1,6 +1,3 @@
-context("stress effect conversion")
-
-
 test_that("stress_to_effect handles bad input", {
     expect_equal(stress_to_effect(-3), 1)
     expect_equal(stress_to_effect(10), 0)

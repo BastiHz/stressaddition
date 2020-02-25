@@ -1,3 +1,12 @@
+# stressaddition 2.1.0
+
+* The functions `plot_effect()` and `plot_stress()` gain a `which` argument that controls which curves are plotted. Consequently, the `show_LL5_model` argument of `plot_effect()` was removed.
+* Added arguments `xlab` and `ylab` to `plot_stress`.
+* Added argument `main` to both plot functions.
+* Changed some colors of the stress curves so they better match with the colors of related effect curves.
+* Added `predict_mixture()` for the prediction of the effects of mixtures of two toxicants.
+* Fixed documentation of `ecxsys()` and `predict_ecxsys()`.
+
 # stressaddition 2.0.0
 
 * Changed the order of arguments in `ecxsys()`.

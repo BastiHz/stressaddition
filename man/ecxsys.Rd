@@ -15,9 +15,8 @@ ecxsys(
 )
 }
 \arguments{
-\item{concentration}{A vector of concentrations, one of which must be 0 to
-indicate the control. Should be sorted in ascending order, otherwise it
-will be sorted automatically.}
+\item{concentration}{A vector of concentrations. Must be sorted in ascending
+order and the first element must be 0 to indicate the control.}
 
 \item{hormesis_concentration}{The concentration where the hormesis occurs.
 This is usually the concentration of the highest effect after the control.}
@@ -35,14 +34,35 @@ survival data in percent this should be 100 (the default).}
 \item{p, q}{The shape parameters of the beta distribution. Default is 3.2.}
 }
 \value{
-A list (of class ecxsys) containing many different objects with the
-  most important being \code{curves}, a data frame containing effect and
-  stress values at different concentrations. See \code{\link{predict_ecxsys}}
-  for details.
+A list (of class ecxsys) containing many different objects of which
+  the most important are listed below. The effect and stress vectors
+  correspond to the provided concentrations.
+  \describe{
+    \item{effect_tox}{Modeled effect resulting from toxicant stress.}
+    \item{effect_tox_sys}{Modeled effect resulting from toxicant and system
+    stress.}
+    \item{effect_tox_env}{Modeled effect resulting from toxicant and
+    environmental stress.}
+    \item{effect_tox_env_sys}{Modeled effect resulting from toxicant,
+    environmental and system stress.}
+    \item{effect_tox_LL5}{The effect predicted by the five-parameter
+    log-logistic model derived from the observations under toxicant stress
+    but without environmental stress.}
+    \item{effect_tox_env_LL5}{The effect predicted by the five-parameter
+    log-logistic model derived from the observations under toxicant stress
+    with environmental stress.}
+    \item{curves}{A data frame containing effect and stress values as
+    returned by \code{\link{predict_ecxsys}}. The concentrations are
+    regularly spaced on a logarithmic scale in the given concentration range.
+    The control is approximated by the lowest non-control concentration times
+    1e-7. The additional column \code{use_for_plotting} is used by the
+    plotting functions of this package to approximate the control and
+    generate a break in the concentration axis.}
+  }
 }
 \description{
-The ECx-SyS model for modeling concentration-effect relationships which
-indicate signs of hormesis.
+The ECx-SyS model for modeling concentration-effect relationships whith
+hormesis.
 }
 \details{
 It is advised to complete the curve down to zero for optimal prediction.
@@ -56,20 +76,25 @@ sorted by increasing concentration.
 }
 \examples{
 model <- ecxsys(
-    concentration = c(0, 0.03, 0.3, 3, 10),
-    hormesis_concentration = 0.3,
-    effect_tox_observed = c(85, 76, 94, 35, 0),
-    effect_tox_env_observed = c(24, 23, 32, 0, 0)
+    concentration = c(0, 0.05, 0.5, 5, 30),
+    hormesis_concentration = 0.5,
+    effect_tox_observed = c(90, 81, 92, 28, 0),
+    effect_tox_env_observed = c(29, 27, 33, 5, 0)
 )
 
-# Use effect_max if for example the effect is given as the number of
-# surviving animals and the initial number of animals is 20:
+# Use effect_max if for example the effect is given as the average number of
+# surviving animals and the initial number of animals is 21:
 model <- ecxsys(
-    concentration = c(0, 0.03, 0.3, 3, 10),
+    concentration = c(0, 0.03, 0.3, 3, 30),
     hormesis_concentration = 0.3,
     effect_tox_observed = c(17, 15.2, 18.8, 7, 0),
     effect_tox_env_observed = c(4.8, 4.6, 6.4, 0, 0),
-    effect_max = 20
+    effect_max = 21
 )
 
+}
+\references{
+\href{https://doi.org/10.1038/s41598-019-51645-4}{Liess, M.,
+  Henz, S. & Knillmann, S. Predicting low-concentration effects of
+  pesticides. Sci Rep 9, 15248 (2019).}
 }
