@@ -11,9 +11,9 @@ plot_effect <- function(model,
     curve_names <- names(model$curves)
     valid_names <- curve_names[startsWith(curve_names, "effect")]
     if (is.null(which)) {
-        which <- c("effect_tox_sys")
+        which <- c("effect_tox", "effect_tox_sys")
         if (model$with_env) {
-            which <- c(which, "effect_tox_env_sys")
+            which <- c(which, "effect_tox_env", "effect_tox_env_sys")
         }
     } else if ("all" %in% which) {
         if (length(which) == 1) {
