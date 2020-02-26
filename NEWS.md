@@ -1,3 +1,7 @@
+# stressaddition 2.1.1
+
+* Restore the default behaviour of `plot_effect()` to also show `effect_tox` and `effect_tox_env`.
+
 # stressaddition 2.1.0
 
 * The functions `plot_effect()` and `plot_stress()` gain a `which` argument that controls which curves are plotted. Consequently, the `show_LL5_model` argument of `plot_effect()` was removed.
