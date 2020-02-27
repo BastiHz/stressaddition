@@ -17,7 +17,7 @@ calculate the EC. Must be one of \code{colnames(model$curves)}.}
 
 \item{response_level}{The desired response level as a percentage between 0
 and 100. For example with the value 10 the function will return the EC10,
-i.e. the concentration where the response falls below 90 \% of the maximum
+i.e. the concentration where the response falls below 90 \% of the control
 response.}
 }
 \value{
@@ -32,6 +32,11 @@ to the control.
 If the response level occurs multiple times because of hormesis, which may
 happen for low values of \code{response_level}, then the occurrence with the
 smallest concentration is returned.
+
+This function only makes sense for curves which generally go down with
+increasing concentration, i.e. all \code{effect_*} curves and also
+\code{sys_tox} and \code{sys_tox_env}. Others are untested and may give
+unexpected results, if any.
 }
 \examples{
 # Calculate the EC_10, the concentration where the effect falls

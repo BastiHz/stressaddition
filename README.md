@@ -26,10 +26,10 @@ In the paper we use the model in the context of survival experiments. However, i
 ```r
 library(stressaddition)
 model <- ecxsys(
-    concentration = c(0, 0.03, 0.3, 3, 10),
-    hormesis_concentration = 0.3,
-    effect_tox_observed = c(85, 76, 94, 35, 0),
-    effect_tox_env_observed = c(24, 23, 32, 0, 0)
+    concentration = c(0, 0.05, 0.5, 5, 30),
+    hormesis_concentration = 0.5,
+    effect_tox_observed = c(90, 81, 92, 28, 0),
+    effect_tox_env_observed = c(29, 27, 33, 5, 0)
 )
 
 # Plot the effect and the system stress:
