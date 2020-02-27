@@ -1,3 +1,8 @@
+# stressaddition 2.2.0
+
+* `ec()` raises an error if the curve does not cross the desired response level.
+* `ecxsys()` gains a new argument `curves_concentration_max` which allows setting the maximum concentration of the predicted curves.
+
 # stressaddition 2.1.1
 
 * Restore the default behaviour of `plot_effect()` to also show `effect_tox` and `effect_tox_env`.

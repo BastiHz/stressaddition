@@ -164,6 +164,7 @@ test_that("function arguments are returned unchanged", {
         effect_tox_observed = c(90, 81, 92, 28, 0),
         effect_tox_env_observed = c(29, 27, 33, 5, 0),
         effect_max = 100,
+        curves_concentration_max = NULL,
         p = 3.2,
         q = 3.2
     )
@@ -232,14 +233,28 @@ test_that("sys model not converging produces a warning, not an error", {
     expect_warning(
         ecxsys(
             concentration = c(0, 0.1, 0.5, 1, 10, 33),
+            hormesis_concentration = 0.5,
             effect_tox_observed = c(90, 81, 92, 50, 18, 0),
-            effect_tox_env_observed = c(75, 89, 54, 7, 0, 0),
-            hormesis_concentration = 0.5
+            effect_tox_env_observed = c(75, 89, 54, 7, 0, 0)
         ),
         paste(
             "Using a horizontal linear model for sys_tox_env_mod because the",
             "Weibull model did not converge."
         ),
+        fixed = TRUE
+    )
+})
+
+
+test_that("error when curves_concentration_max is too low", {
+    expect_error(
+        ecxsys(
+            concentration = c(0, 0.05, 0.5, 5, 30),
+            hormesis_concentration = 0.5,
+            effect_tox_observed = c(90, 81, 92, 28, 0),
+            curves_concentration_max = 0.01
+        ),
+        "'curves_concentration_max' is too low.",
         fixed = TRUE
     )
 })

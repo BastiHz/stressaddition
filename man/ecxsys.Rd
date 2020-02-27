@@ -10,6 +10,7 @@ ecxsys(
   effect_tox_observed,
   effect_tox_env_observed = NULL,
   effect_max = 100,
+  curves_concentration_max = NULL,
   p = 3.2,
   q = 3.2
 )
@@ -30,6 +31,10 @@ environmental stress. Must be between 0 and \code{effect_max}.}
 
 \item{effect_max}{The maximum value the effect could possibly reach. For
 survival data in percent this should be 100 (the default).}
+
+\item{curves_concentration_max}{The maximum concentration of the predicted
+curves. This might be useful if for example your highest observed
+concentration is 30 but you would like to know the predicted values at 100.}
 
 \item{p, q}{The shape parameters of the beta distribution. Default is 3.2.}
 }

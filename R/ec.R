@@ -7,6 +7,11 @@
 #' happen for low values of \code{response_level}, then the occurrence with the
 #' smallest concentration is returned.
 #'
+#' This function only makes sense for curves which generally go down with
+#' increasing concentration, i.e. all \code{effect_*} curves and also
+#' \code{sys_tox} and \code{sys_tox_env}. Others are untested and may give
+#' unexpected results, if any.
+#'
 #' @param model This can be one of three types of objects: Either the output of
 #'   \code{\link{ecxsys}} or the output of \code{\link{predict_ecxsys}} or a
 #'   data frame with a "concentration" column and a \code{response_name} column.
@@ -15,7 +20,7 @@
 #'   calculate the EC. Must be one of \code{colnames(model$curves)}.
 #' @param response_level The desired response level as a percentage between 0
 #'   and 100. For example with the value 10 the function will return the EC10,
-#'   i.e. the concentration where the response falls below 90 \% of the maximum
+#'   i.e. the concentration where the response falls below 90 \% of the control
 #'   response.
 #'
 #' @return A list containing the response concentration and the corresponding
@@ -77,18 +82,25 @@ ec <- function(model, response_name, response_level) {
 
     reference <- response[1]
     if (reference == 0) {
-        stop("Reference value is zero, calculation of EC not possible.")
+        stop("Reference value is zero, calculation of EC is impossible.")
     }
-    response_level <- (1 - response_level / 100) * reference
-    output <- list(response_value = response_level)
+    response_value <- (1 - response_level / 100) * reference
+    output <- list(response_value = response_value)
 
     # Get the index of where the response changes from above to below
-    # response_level:
-    below <- which(response < response_level)[1]
+    # response_value:
+    below <- which(response < response_value)[1]
+    if (is.na(below)) {
+        stop("The curve '", response_name, "' does not fall below ",
+             100 - response_level, "% of the control, which makes ",
+             "determining the EC", response_level, " impossible.\n  You could ",
+             "try using predict_ecxsys() to predict more values in a wider ",
+             "concentration range.")
+    }
     above <- below - 1
 
     # linear interpolation
-    dist <- (response_level - response[below]) / (response[above] - response[below])
+    dist <- (response_value - response[below]) / (response[above] - response[below])
     output$concentration <- dist *
         (concentration[above] - concentration[below]) + concentration[below]
     output

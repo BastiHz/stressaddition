@@ -74,3 +74,17 @@ test_that("ec values have not changed", {
         tolerance = 1e-4
     )
 })
+
+
+test_that("ec fails when response_level is outside the range of the curve", {
+    model <- ecxsys(
+        concentration = c(0, 0.05, 0.5, 5),
+        hormesis_concentration = 0.5,
+        effect_tox_observed = c(90, 81, 92, 28)
+    )
+    expect_error(
+        ec(model, "effect_tox_sys", 90),
+        "You could try using predict_ecxsys() to predict more values",
+        fixed = TRUE
+    )
+})

@@ -18,14 +18,13 @@ Comment on any notes that come up during devtools::check().
 
 ### checklist
 <!-- Please check `[x]` the applicable boxes. -->
-* [ ] This merge includes bug fixes or changes in the functionality of the package (whether they are user-visible or not).
-    * [ ]  update documentation including examples (if necessary)
-    * [ ]  update and polish NEWS.md
-    * [ ]  update version in DESCRIPTION
-    * [ ]  update date in DESCRIPTION
 * [ ]  This merge introduces new features.
     * [ ]  new features are documented
     * [ ]  new features have tests
+* [ ]  update documentation including examples (if necessary)
+* [ ]  update and polish NEWS.md
+* [ ]  update version in DESCRIPTION
+* [ ]  update date in DESCRIPTION
 * [ ]  no remaining TODO, FIXME, or debug prints anywhere in the source files
 * [ ]  `devtools::document()`
 * [ ]  `devtools::check()` without errors or warnings
