@@ -44,7 +44,9 @@ predict_mixture <- function(model_1,
         length(concentration_2) == 1,
         !is.na(concentration_2),
         proportion_ca >= 0,
-        proportion_ca <= 1
+        proportion_ca <= 1,
+        model_1$args$p == model_2$args$p,
+        model_1$args$q == model_2$args$q
     )
 
     predicted_model_1 <- predict_ecxsys(model_1, concentration_1)
