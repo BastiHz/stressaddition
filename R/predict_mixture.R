@@ -44,7 +44,9 @@ predict_mixture <- function(model_1,
         length(concentration_2) == 1,
         !is.na(concentration_2),
         proportion_ca >= 0,
-        proportion_ca <= 1
+        proportion_ca <= 1,
+        model_1$args$p == model_2$args$p,
+        model_1$args$q == model_2$args$q
     )
 
     predicted_model_1 <- predict_ecxsys(model_1, concentration_1)
@@ -67,6 +69,7 @@ predict_mixture <- function(model_1,
         model_1$effect_tox_mod,
         data.frame(concentration = concentration_1 + concentration_2_equivalent)
     )
+    stress_tox_ca_1 <- effect_to_stress(effect_tox_ca_1)
 
     response_level_1 <- 100 - predicted_model_1$effect_tox / model_1$args$effect_max * 100
     response_level_1 <- clamp(response_level_1, 1e-10, 100 - 1e-10)
@@ -79,8 +82,9 @@ predict_mixture <- function(model_1,
         model_2$effect_tox_mod,
         data.frame(concentration = concentration_2 + concentration_1_equivalent)
     )
+    stress_tox_ca_2 <- effect_to_stress(effect_tox_ca_2)
 
-    stress_tox_ca <- effect_to_stress(effect_tox_ca_1 * 0.5 + effect_tox_ca_2 * 0.5)
+    stress_tox_ca <- (stress_tox_ca_1 + stress_tox_ca_2) / 2
 
     # sys -----------------------------------------------------------------
     sys_1 <- predict(model_1$sys_tox_mod, data.frame(stress_tox = stress_tox_ca))
