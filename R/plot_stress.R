@@ -35,7 +35,7 @@ plot_stress <- function(model,
         }
     }
 
-    temp <- adjust_smooth_concentrations(model)
+    temp <- adjust_plot_concentrations(model)
     curves <- temp$curves
     log_ticks <- get_log_ticks(curves$concentration)
     concentration <- c(curves$concentration[1], model$args$concentration[-1])
