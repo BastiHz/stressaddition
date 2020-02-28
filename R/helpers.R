@@ -33,11 +33,11 @@ get_log_ticks <- function(x) {
 }
 
 
-adjust_smooth_concentrations <- function(model) {
+adjust_plot_concentrations <- function(model) {
     # Helper for the plot functions, not exported.
-    # Deals with the concentrations which are unnecessary for plotting.
-    # This means it removes the concentrations in the gap and scales the
-    # concentrations left of the gap up.
+    # Deals with the concentrations which are unnecessary for plotting. This
+    # means it removes the concentrations in the gap and increases the
+    # concentrations left of the gap.
     curves <- model$curves
     gap_idx <- min(which(!curves$use_for_plotting))
 
