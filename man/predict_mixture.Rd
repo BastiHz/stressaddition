@@ -29,25 +29,53 @@ A vector of the effects of the mixture, scaled to the effect_max
   value of model_1.
 }
 \description{
+Given the ecxsys models of two toxicants this method predicts the effects of
+different mixtures of both.
+}
+\details{
+The prediction happens at one or multiple concentrations of toxicant 1 and
+one concentration of toxicant 2. This allows for easy plotting over the
+concentrations of toxicant 1.
+
+The predictions are symmetric, i.e. it does not matter which of the toxicant
+models is 1 or 2 as long as the concentration arguments are supplied
+in the right order. See the example below.
+
 This method is only suitable for experiments without environmental stress.
 Any environmental stress in \code{model_1} or \code{model_2} is ignored.
 }
 \examples{
-toxicant_model_1 <- ecxsys(
+toxicant_1  <- ecxsys(
     concentration = c(0, 0.05, 0.5, 5, 30),
     hormesis_concentration = 0.5,
     effect_tox_observed = c(90, 81, 92, 28, 0),
 )
-toxicant_model_2 <- ecxsys(
+toxicant_2  <- ecxsys(
     concentration = c(0, 0.1, 1, 10, 100, 1000),
     hormesis_concentration = 10,
     effect_tox_observed = c(26, 25, 24, 27, 5, 0),
     effect_max = 30
 )
 predict_mixture(
-    toxicant_model_1,
-    toxicant_model_2,
+    toxicant_1 ,
+    toxicant_2 ,
     c(0, 0.02, 0.2, 2, 20),
     3
 )
+
+# Example of symmetric prediction:
+conc_1 <- c(0, 0.03, 0.3, 3)
+conc_2 <- 5.5
+prop_ca <- 0.75
+effect_a <- predict_mixture(toxicant_1 , toxicant_2 , conc_1, conc_2, prop_ca)
+effect_b <- sapply(
+    conc_1,
+    function(x) predict_mixture(toxicant_2 , toxicant_1 , conc_2, x, prop_ca)
+)
+# The effect_max values of the models are different. effect_b is scaled to
+# the one from toxicant 2 but to compare the results effect_b must be scaled
+# to the effect_max of toxicant 1:
+effect_b <- effect_b / toxicant_2 $args$effect_max * toxicant_1$args$effect_max
+identical(effect_a, effect_b)
+
 }
