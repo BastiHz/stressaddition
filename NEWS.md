@@ -1,3 +1,7 @@
+# stressaddition 2.2.1
+
+* Improve documentation of `predict_mixture()` and include example of symmetry.
+
 # stressaddition 2.2.0
 
 * `ec()` raises an error if the curve does not cross the desired response level.

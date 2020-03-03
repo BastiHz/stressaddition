@@ -1,6 +1,26 @@
+# Copyright (C) 2020  Helmholtz-Zentrum fuer Umweltforschung GmbH - UFZ
+# See file inst/COPYRIGHTS for details.
+#
+# This file is part of the R package stressaddition.
+#
+# stressaddition is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 # The help file for the package, accessible via ?stressaddition and
 # ?`stressaddition-package`. Some people recommend using "@keywords internal"
-# here to exclude this page from the help index but I'm not going to do that.
+# here to exclude this page from the help index. But I'm not going to do that
+# because I want to keep it on the index.
 
 # "_PACKAGE" automatically populates most sections in this package
 # documentation, so I don't need to manually fill in authors, title or

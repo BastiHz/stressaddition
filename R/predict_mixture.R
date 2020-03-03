@@ -1,4 +1,34 @@
+# Copyright (C) 2020  Helmholtz-Zentrum fuer Umweltforschung GmbH - UFZ
+# See file inst/COPYRIGHTS for details.
+#
+# This file is part of the R package stressaddition.
+#
+# stressaddition is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 #' Predict the effect of a mixture of two toxicants
+#'
+#' Given the ecxsys models of two toxicants this method predicts the effects of
+#' different mixtures of both.
+#'
+#' The prediction happens at one or multiple concentrations of toxicant 1 and
+#' one concentration of toxicant 2. This allows for easy plotting over the
+#' concentrations of toxicant 1.
+#'
+#' The predictions are symmetric, i.e. it does not matter which of the toxicant
+#' models is 1 or 2 as long as the concentration arguments are supplied
+#' in the right order. See the example below.
 #'
 #' This method is only suitable for experiments without environmental stress.
 #' Any environmental stress in \code{model_1} or \code{model_2} is ignored.
@@ -13,23 +43,39 @@
 #' @return A vector of the effects of the mixture, scaled to the effect_max
 #'   value of model_1.
 #'
-#' @examples toxicant_model_1 <- ecxsys(
+#' @examples toxicant_1  <- ecxsys(
 #'     concentration = c(0, 0.05, 0.5, 5, 30),
 #'     hormesis_concentration = 0.5,
 #'     effect_tox_observed = c(90, 81, 92, 28, 0),
 #' )
-#' toxicant_model_2 <- ecxsys(
+#' toxicant_2  <- ecxsys(
 #'     concentration = c(0, 0.1, 1, 10, 100, 1000),
 #'     hormesis_concentration = 10,
 #'     effect_tox_observed = c(26, 25, 24, 27, 5, 0),
 #'     effect_max = 30
 #' )
 #' predict_mixture(
-#'     toxicant_model_1,
-#'     toxicant_model_2,
+#'     toxicant_1 ,
+#'     toxicant_2 ,
 #'     c(0, 0.02, 0.2, 2, 20),
 #'     3
 #' )
+#'
+#' # Example of symmetric prediction:
+#' conc_1 <- c(0, 0.03, 0.3, 3)
+#' conc_2 <- 5.5
+#' prop_ca <- 0.75
+#' effect_a <- predict_mixture(toxicant_1 , toxicant_2 , conc_1, conc_2, prop_ca)
+#' effect_b <- sapply(
+#'     conc_1,
+#'     function(x) predict_mixture(toxicant_2 , toxicant_1 , conc_2, x, prop_ca)
+#' )
+#' # The effect_max values of the models are different. effect_b is scaled to
+#' # the one from toxicant 2 but to compare the results effect_b must be scaled
+#' # to the effect_max of toxicant 1:
+#' effect_b <- effect_b / toxicant_2 $args$effect_max * toxicant_1$args$effect_max
+#' identical(effect_a, effect_b)
+#'
 #' @export
 predict_mixture <- function(model_1,
                             model_2,
