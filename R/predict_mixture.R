@@ -22,127 +22,126 @@
 #' Given the ecxsys models of two toxicants this method predicts the effects of
 #' different mixtures of both.
 #'
-#' The prediction happens at one or multiple concentrations of toxicant 1 and
-#' one concentration of toxicant 2. This allows for easy plotting over the
-#' concentrations of toxicant 1.
-#'
 #' The predictions are symmetric, i.e. it does not matter which of the toxicant
-#' models is 1 or 2 as long as the concentration arguments are supplied
-#' in the right order. See the example below.
+#' models is 1 or 2 as long as the concentration arguments are supplied in the
+#' right order. See the example below.
 #'
 #' This method is only suitable for experiments without environmental stress.
-#' Any environmental stress in \code{model_1} or \code{model_2} is ignored.
+#' Any environmental stress in \code{model_a} or \code{model_b} is ignored.
 #'
-#' @param model_1 The ecxsys model of the toxicant that varies in concentration.
-#' @param model_2 The ecxsys model of the toxicant with a fixed concentration.
-#' @param concentration_1 The concentration of toxicant 1 in the mixture.
-#' @param concentration_2 The concentration of toxicant 2 in the mixture.
-#' @param proportion_ca How much of the combined toxicant stress is determined
-#'   by concentration addition. Must be between 0 and 1.
+#' @param model_a,model_b The ecxsys models of the toxicants.
+#' @param concentration_a,concentration_b The concentrations of the toxicants in
+#'   the mixture. Both vectors must be the same length.
+#' @param proportion_ca The proportion of concentration addition in the
+#'   calculation of the toxicant stress of the mixture. Must be between 0 and 1.
+#' @param effect_max Controls the scaling of the result. This represents the
+#'   maximum value the effect could possibly reach. For survival data in percent
+#'   this should be 100 (the default).
 #'
-#' @return A vector of the effects of the mixture, scaled to the effect_max
-#'   value of model_1.
+#' @return A data frame with columns of the supplied concentrations and the
+#'   corresponding mixture effects.
 #'
-#' @examples toxicant_1  <- ecxsys(
+#' @examples toxicant_a  <- ecxsys(
 #'     concentration = c(0, 0.05, 0.5, 5, 30),
 #'     hormesis_concentration = 0.5,
 #'     effect_tox_observed = c(90, 81, 92, 28, 0),
 #' )
-#' toxicant_2  <- ecxsys(
+#' toxicant_b  <- ecxsys(
 #'     concentration = c(0, 0.1, 1, 10, 100, 1000),
 #'     hormesis_concentration = 10,
 #'     effect_tox_observed = c(26, 25, 24, 27, 5, 0),
 #'     effect_max = 30
 #' )
 #' predict_mixture(
-#'     toxicant_1 ,
-#'     toxicant_2 ,
+#'     toxicant_a ,
+#'     toxicant_b ,
 #'     c(0, 0.02, 0.2, 2, 20),
-#'     3
+#'     c(0, 0.03, 0.4, 5, 10)
 #' )
 #'
 #' # Example of symmetric prediction:
-#' conc_1 <- c(0, 0.03, 0.3, 3)
-#' conc_2 <- 5.5
+#' conc_a <- c(0, 0.03, 0.3, 3)
+#' conc_b <- rep(5.5, 4)
 #' prop_ca <- 0.75
-#' effect_a <- predict_mixture(toxicant_1 , toxicant_2 , conc_1, conc_2, prop_ca)
-#' effect_b <- sapply(
-#'     conc_1,
-#'     function(x) predict_mixture(toxicant_2 , toxicant_1 , conc_2, x, prop_ca)
-#' )
-#' # The effect_max values of the models are different. effect_b is scaled to
-#' # the one from toxicant 2 but to compare the results effect_b must be scaled
-#' # to the effect_max of toxicant 1:
-#' effect_b <- effect_b / toxicant_2 $args$effect_max * toxicant_1$args$effect_max
-#' identical(effect_a, effect_b)
+#' effect_a <- predict_mixture(toxicant_a , toxicant_b , conc_a, conc_b, prop_ca)
+#' effect_b <- predict_mixture(toxicant_b , toxicant_a , conc_b, conc_a, prop_ca)
+#' identical(effect_a$mixture_effect, effect_b$mixture_effect)
 #'
 #' @export
-predict_mixture <- function(model_1,
-                            model_2,
-                            concentration_1,
-                            concentration_2,
-                            proportion_ca = 0.5) {
+predict_mixture <- function(model_a,
+                            model_b,
+                            concentration_a,
+                            concentration_b,
+                            proportion_ca = 0.5,
+                            effect_max = 100) {
     stopifnot(
-        inherits(model_1, "ecxsys"),
-        inherits(model_2, "ecxsys"),
-        is.numeric(concentration_1),
-        is.numeric(concentration_2),
-        length(concentration_2) == 1,
-        !is.na(concentration_2),
+        inherits(model_a, "ecxsys"),
+        inherits(model_b, "ecxsys"),
+        is.numeric(concentration_a),
+        is.numeric(concentration_b),
+        length(concentration_a) > 0,
+        length(concentration_b) > 0,
+        length(concentration_a) == length(concentration_b),
+        all(!is.na(concentration_a)),
+        all(!is.na(concentration_b)),
         proportion_ca >= 0,
         proportion_ca <= 1,
-        model_1$args$p == model_2$args$p,
-        model_1$args$q == model_2$args$q
+        model_a$args$p == model_b$args$p,
+        model_a$args$q == model_b$args$q
     )
 
-    predicted_model_1 <- predict_ecxsys(model_1, concentration_1)
-    predicted_model_2 <- predict_ecxsys(model_2, concentration_2)
+    predicted_model_a <- predict_ecxsys(model_a, concentration_a)
+    predicted_model_b <- predict_ecxsys(model_b, concentration_b)
 
     # tox stress ----------------------------------------------------------
-    stress_tox_sam <- predicted_model_1$stress_tox + predicted_model_2$stress_tox
+    stress_tox_sam <- predicted_model_a$stress_tox + predicted_model_b$stress_tox
 
-    # Convert the model_2 concentration into an equivalent model_1 concentration
-    # anc vice versa. Clamp the response levels because drc::ED can't deal with
-    # 0 and 100.
-    response_level_2 <- 100 - predicted_model_2$effect_tox / model_2$args$effect_max * 100
-    response_level_2 <- clamp(response_level_2, 1e-10, 100 - 1e-10)
-    concentration_2_equivalent <- drc::ED(
-        model_1$effect_tox_mod,
-        response_level_2,
-        display = FALSE
-    )[, "Estimate"]
-    effect_tox_ca_1 <- predict(
-        model_1$effect_tox_mod,
-        data.frame(concentration = concentration_1 + concentration_2_equivalent)
+    # Convert the model_b concentration into an equivalent model_a concentration
+    # and vice versa.
+    concentration_b_equivalent <- W1.2_inverse(
+        model_a$effect_tox_mod,
+        predicted_model_b$effect_tox / model_b$args$effect_max
     )
-    stress_tox_ca_1 <- effect_to_stress(effect_tox_ca_1)
-
-    response_level_1 <- 100 - predicted_model_1$effect_tox / model_1$args$effect_max * 100
-    response_level_1 <- clamp(response_level_1, 1e-10, 100 - 1e-10)
-    concentration_1_equivalent <- drc::ED(
-        model_2$effect_tox_mod,
-        response_level_1,
-        display = FALSE
-    )[, "Estimate"]
-    effect_tox_ca_2 <- predict(
-        model_2$effect_tox_mod,
-        data.frame(concentration = concentration_2 + concentration_1_equivalent)
+    effect_tox_ca_a <- predict(
+        model_a$effect_tox_mod,
+        data.frame(concentration = concentration_a + concentration_b_equivalent)
     )
-    stress_tox_ca_2 <- effect_to_stress(effect_tox_ca_2)
+    stress_tox_ca_a <- effect_to_stress(effect_tox_ca_a)
 
-    stress_tox_ca <- (stress_tox_ca_1 + stress_tox_ca_2) / 2
+    concentration_a_equivalent <- W1.2_inverse(
+        model_b$effect_tox_mod,
+        predicted_model_a$effect_tox / model_a$args$effect_max
+    )
+    effect_tox_ca_b <- predict(
+        model_b$effect_tox_mod,
+        data.frame(concentration = concentration_b + concentration_a_equivalent)
+    )
+    stress_tox_ca_b <- effect_to_stress(effect_tox_ca_b)
+
+    stress_tox_ca <- (stress_tox_ca_a + stress_tox_ca_b) / 2
 
     # sys -----------------------------------------------------------------
-    sys_1 <- predict(model_1$sys_tox_mod, data.frame(stress_tox = stress_tox_ca))
-    sys_2 <- predict(model_2$sys_tox_mod, data.frame(stress_tox = stress_tox_ca))
-    sys_total <- sys_1 * 0.5 + sys_2 * 0.5
+    sys_a <- predict(model_a$sys_tox_mod, data.frame(stress_tox = stress_tox_ca))
+    sys_b <- predict(model_b$sys_tox_mod, data.frame(stress_tox = stress_tox_ca))
+    sys_total <- (sys_a + sys_b) / 2
 
     # combined stress and result ------------------------------------------
     proportion_sam <- 1 - proportion_ca
     stress_tox_total <- stress_tox_ca * proportion_ca + stress_tox_sam * proportion_sam
     stress_total <- stress_tox_total + sys_total
-    effect_total <- stress_to_effect(stress_total) * model_1$args$effect_max
+    mixture_effect <- stress_to_effect(stress_total) * effect_max
 
-    # unname() to remove the name when concentration_1 is a single number.
-    unname(effect_total)
+    # unname() to remove the name when concentration_a is a single number.
+    mixture_effect <- unname(mixture_effect)
+    data.frame(concentration_a, concentration_b, mixture_effect)
+}
+
+
+W1.2_inverse <- function(mod, x) {
+    # Using drc::ED() with respLev = 0 does not work, which is why I use
+    # this function instead.
+    # x = 1 - respLev / 100
+    b <- mod$fit$par[1]
+    e <- mod$fit$par[2]
+    exp(log(-log(x)) / b + log(e))
 }
