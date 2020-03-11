@@ -5,77 +5,68 @@
 \title{Predict the effect of a mixture of two toxicants}
 \usage{
 predict_mixture(
-  model_1,
-  model_2,
-  concentration_1,
-  concentration_2,
-  proportion_ca = 0.5
+  model_a,
+  model_b,
+  concentration_a,
+  concentration_b,
+  proportion_ca = 0.5,
+  effect_max = 100
 )
 }
 \arguments{
-\item{model_1}{The ecxsys model of the toxicant that varies in concentration.}
+\item{model_a, model_b}{The ecxsys models of the toxicants.}
 
-\item{model_2}{The ecxsys model of the toxicant with a fixed concentration.}
+\item{concentration_a, concentration_b}{The concentrations of the toxicants in
+the mixture. Both vectors must be the same length.}
 
-\item{concentration_1}{The concentration of toxicant 1 in the mixture.}
+\item{proportion_ca}{The proportion of concentration addition in the
+calculation of the toxicant stress of the mixture. Must be between 0 and 1.}
 
-\item{concentration_2}{The concentration of toxicant 2 in the mixture.}
-
-\item{proportion_ca}{How much of the combined toxicant stress is determined
-by concentration addition. Must be between 0 and 1.}
+\item{effect_max}{Controls the scaling of the result. This represents the
+maximum value the effect could possibly reach. For survival data in percent
+this should be 100 (the default).}
 }
 \value{
-A vector of the effects of the mixture, scaled to the effect_max
-  value of model_1.
+A data frame with columns of the supplied concentrations and the
+  corresponding mixture effects.
 }
 \description{
 Given the ecxsys models of two toxicants this method predicts the effects of
 different mixtures of both.
 }
 \details{
-The prediction happens at one or multiple concentrations of toxicant 1 and
-one concentration of toxicant 2. This allows for easy plotting over the
-concentrations of toxicant 1.
-
 The predictions are symmetric, i.e. it does not matter which of the toxicant
-models is 1 or 2 as long as the concentration arguments are supplied
-in the right order. See the example below.
+models is 1 or 2 as long as the concentration arguments are supplied in the
+right order. See the example below.
 
 This method is only suitable for experiments without environmental stress.
-Any environmental stress in \code{model_1} or \code{model_2} is ignored.
+Any environmental stress in \code{model_a} or \code{model_b} is ignored.
 }
 \examples{
-toxicant_1  <- ecxsys(
+toxicant_a  <- ecxsys(
     concentration = c(0, 0.05, 0.5, 5, 30),
     hormesis_concentration = 0.5,
     effect_tox_observed = c(90, 81, 92, 28, 0),
 )
-toxicant_2  <- ecxsys(
+toxicant_b  <- ecxsys(
     concentration = c(0, 0.1, 1, 10, 100, 1000),
     hormesis_concentration = 10,
     effect_tox_observed = c(26, 25, 24, 27, 5, 0),
     effect_max = 30
 )
 predict_mixture(
-    toxicant_1 ,
-    toxicant_2 ,
+    toxicant_a ,
+    toxicant_b ,
     c(0, 0.02, 0.2, 2, 20),
-    3
+    c(0, 0.03, 0.4, 5, 10)
 )
 
 # Example of symmetric prediction:
-conc_1 <- c(0, 0.03, 0.3, 3)
-conc_2 <- 5.5
+conc_a <- c(0, 0.03, 0.3, 3)
+conc_b <- rep(5.5, 4)
 prop_ca <- 0.75
-effect_a <- predict_mixture(toxicant_1 , toxicant_2 , conc_1, conc_2, prop_ca)
-effect_b <- sapply(
-    conc_1,
-    function(x) predict_mixture(toxicant_2 , toxicant_1 , conc_2, x, prop_ca)
-)
-# The effect_max values of the models are different. effect_b is scaled to
-# the one from toxicant 2 but to compare the results effect_b must be scaled
-# to the effect_max of toxicant 1:
-effect_b <- effect_b / toxicant_2 $args$effect_max * toxicant_1$args$effect_max
-identical(effect_a, effect_b)
+effect_a <- predict_mixture(toxicant_a , toxicant_b , conc_a, conc_b, prop_ca)
+effect_b <- predict_mixture(toxicant_b , toxicant_a , conc_b, conc_a, prop_ca)
+identical(effect_a$mixture_effect, effect_b$mixture_effect)
 
 }

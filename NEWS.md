@@ -1,3 +1,10 @@
+# stressaddition 2.3.0
+
+* `predict_mixture()` accepts multiple values for the concentration of the second toxicant. Both concentration vectors must be the same length.
+* `predict_mixture()` returns a data frame with the concentrations and effects. Previously it was only a vector of effects.
+* `predict_mixture()` received a new argument "effect_max" which scales the returned effect values.
+* Renamed the arguments of `predict_mixture()` to use underscore letters a and b instad of 1 and 2. For example model_1 is now model_a.
+
 # stressaddition 2.2.1
 
 * Improve documentation of `predict_mixture()` and include example of symmetry.
