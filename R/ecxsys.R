@@ -234,7 +234,7 @@ ecxsys <- function(concentration,
         hormesis_index,
         original_options
     )
-    output$sys_tox_not_fitted <- fit_sys_output$sys[keep]
+    output$sys_tox_observed <- fit_sys_output$sys[keep]
     output$sys_tox_mod <- fit_sys_output$sys_mod
     if (inherits(fit_sys_output$sys_mod, "lm")) {
         warning(
@@ -273,7 +273,7 @@ ecxsys <- function(concentration,
             hormesis_index,
             original_options
         )
-        output$sys_tox_env_not_fitted <- fit_sys_output$sys[keep]
+        output$sys_tox_env_observed <- fit_sys_output$sys[keep]
         output$sys_tox_env_mod <- fit_sys_output$sys_mod
         if (inherits(fit_sys_output$sys_mod, "lm")) {
             warning(

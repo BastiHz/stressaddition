@@ -1,7 +1,12 @@
+# stressaddition 2.4.0
+
+* Improved `plot_effect()` and `plot_stress()`. You can now control whether the observed values (the points) should be plotted using the `which` argument.
+* Renamed `sys_tox_not_fitted` and `sys_tox_env_not_fitted` to `sys_tox_observed` and `sys_tox_env_observed` in the output of `ecxsys()`.
+
 # stressaddition 2.3.0
 
 * `predict_mixture()` accepts multiple values for the concentration of the second toxicant. Both concentration vectors must be the same length.
-* `predict_mixture()` returns a data frame with the concentrations and effects. Previously it was only a vector of effects.
+* `predict_mixture()` now returns a data frame with the concentrations and effects. Previously it was only a vector of effects.
 * `predict_mixture()` received a new argument "effect_max" which scales the returned effect values.
 * Renamed the arguments of `predict_mixture()` to use underscore letters a and b instad of 1 and 2. For example model_1 is now model_a.
 
