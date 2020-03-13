@@ -105,7 +105,7 @@ test_that("the discrete results have not changed", {
         tolerance = 1e-4
     )
     expect_equal(
-        mod$sys_tox_not_fitted,
+        mod$sys_tox_observed,
         c(0.2541156, 0.2324304, 0, 0, 0),
         tolerance = 1e-4
     )
@@ -131,7 +131,7 @@ test_that("the discrete results have not changed", {
         tolerance = 1e-4
     )
     expect_equal(
-        mod$sys_tox_env_not_fitted,
+        mod$sys_tox_env_observed,
         c(0.2566005, 0.1753250, 0, 0, 0),
         tolerance = 1e-4
     )

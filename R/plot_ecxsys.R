@@ -27,10 +27,13 @@
 #' @name plot_ecxsys
 #'
 #' @param model The list returned from \code{\link{ecxsys}}.
-#' @param which A vector of curve names to plot. Allowed values are the column
-#'   names of the \code{model$curves} data frame. The default \code{NULL} only
-#'   plots the most important curves. Use \code{which = "all"} to display all
-#'   curves.
+#' @param which A vector of names to plot. Allowed are the column names of the
+#'   \code{model$curves} data frame. There is also \code{"effect_tox_observed"}
+#'   and \code{"effect_tox_env_observed"} for the observed effects and
+#'   \code{"sys_tox_observed"} and \code{"sys_tox_env_observed"} for the
+#'   observed Sys. The default \code{NULL} only plots the most important curves.
+#'   Use \code{which = "all"} to display all curves.
+#'
 #' @param show_legend Should the plot include a legend? Defaults to \code{FALSE}
 #'   because it may cover some parts of the plot depending on the plot size and
 #'   the number of elements shown.
@@ -42,14 +45,18 @@
 #'     effect_tox_observed = c(90, 81, 92, 28, 0),
 #'     effect_tox_env_observed = c(29, 27, 33, 5, 0)
 #' )
-#' plot_effect(model)
-#' plot_stress(model)
+#' plot_effect(model, show_legend = TRUE)
+#' plot_stress(model, show_legend = TRUE)
 #'
 #' # Plot all curves:
 #' plot_effect(model, which = "all")
 #' plot_stress(model, which = "all")
 #'
 #' # Plot only some selected curves:
-#' plot_effect(model, which = c("effect_tox", "effect_tox_env"))
-#' plot_stress(model, which = c("stress_tox", "stress_tox_env"))
+#' plot_effect(model, which = c("effect_tox_sys", "effect_tox_env_sys"))
+#' plot_stress(model, which = c("sys_tox", "sys_tox_env"))
+#'
+#' # Plot only the observed values:
+#' plot_effect(model, which = c("effect_tox_observed", "effect_tox_env_observed"))
+#' plot_stress(model, which = c("sys_tox_observed", "sys_tox_env_observed"))
 NULL

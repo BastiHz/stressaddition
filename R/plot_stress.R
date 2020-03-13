@@ -28,30 +28,27 @@ plot_stress <- function(model,
     stopifnot(inherits(model, "ecxsys"))
 
     curve_names <- names(model$curves)
-    valid_names <- curve_names[
-        startsWith(curve_names, "stress") | startsWith(curve_names, "sys")
-    ]
+    valid_names <- c(
+        curve_names[startsWith(curve_names, "stress") | startsWith(curve_names, "sys")],
+        "sys_tox_observed", "sys_tox_env_observed"  # the observed points
+    )
     if (is.null(which)) {
-        which <- c("sys_tox")
+        which <- c("sys_tox", "sys_tox_observed")
         if (model$with_env) {
-            which <- c(which, "sys_tox_env")
+            which <- c(which, "sys_tox_env", "sys_tox_env_observed")
         }
     } else if ("all" %in% which) {
-        if (length(which) == 1) {
-            which <- valid_names
-        } else {
+        if (length(which) > 1) {
             stop("'all' must not be combined with other curve names.")
         }
-    } else if (!all(which %in% valid_names)) {
+        which <- valid_names
+    } else if (any(!which %in% valid_names)) {
         warning("Argument 'which' contains invalid names.")
         if (!model$with_env && any(grepl("env", which, fixed = TRUE))) {
             warning("'which' contains names with 'env' but the model was",
                     " built without environmental effects.")
         }
         which <- which[which %in% valid_names]
-        if (length(which) == 0) {
-            stop("No curves to display.")
-        }
     }
 
     temp <- adjust_plot_concentrations(model)
@@ -59,20 +56,14 @@ plot_stress <- function(model,
     log_ticks <- get_log_ticks(curves$concentration)
     concentration <- c(curves$concentration[1], model$args$concentration[-1])
 
-    legend_df <- data.frame(
-        text = character(),
-        pch = numeric(),
-        lty = numeric(),
-        col = character(),
-        order = numeric(),  # controls sorting of legend elements
-        stringsAsFactors = FALSE
-    )
+    curves_w <- curves[, which[!endsWith(which, "observed")]]
+    ymax <- if (NCOL(curves_w) == 0) 1 else max(curves_w, 1, na.rm = TRUE)
 
     plot(
         NA,
         NA,
         xlim = range(curves$concentration, na.rm = TRUE),
-        ylim = c(0, max(curves[, which], 1, na.rm = TRUE)),
+        ylim = c(0, ymax),
         log = "x",
         xlab = xlab,
         ylab = ylab,
@@ -84,13 +75,20 @@ plot_stress <- function(model,
 
     # The lines are drawn in this order to ensure that dotted and dashed lines
     # are on top of solid lines for better visibility.
+    if ("sys_tox_observed" %in% which) {
+        points(
+            concentration,
+            model$sys_tox_observed,
+            pch = 16,
+            col = "steelblue3"
+        )
+    }
     if ("stress_tox_sys" %in% which) {
         lines(
             curves$concentration,
             curves$stress_tox_sys,
             col = "blue"
         )
-        legend_df[nrow(legend_df) + 1, ] <- list("tox + sys", NA, 1, "blue", 3)
     }
     if ("stress_tox" %in% which) {
         lines(
@@ -99,30 +97,29 @@ plot_stress <- function(model,
             col = "deepskyblue",
             lty = 2
         )
-        legend_df[nrow(legend_df) + 1, ] <- list("tox", NA, 2, "deepskyblue", 1)
     }
     if ("sys_tox" %in% which) {
-        points(
-            concentration,
-            model$sys_tox_not_fitted,
-            pch = 16,
-            col = "steelblue3"
-        )
         lines(
             curves$concentration,
             curves$sys_tox,
             col = "steelblue3"
         )
-        legend_df[nrow(legend_df) + 1, ] <- list("sys (tox)", 16, 1, "steelblue3", 2)
     }
     if (model$with_env) {
+        if ("sys_tox_env_observed" %in% which) {
+            points(
+                concentration,
+                model$sys_tox_env_observed,
+                pch = 16,
+                col = "violetred"
+            )
+        }
         if ("stress_tox_env_sys" %in% which) {
             lines(
                 curves$concentration,
                 curves$stress_tox_env_sys,
                 col = "red"
             )
-            legend_df[nrow(legend_df) + 1, ] <- list("tox + env + sys", NA, 1, "red", 7)
         }
         if ("stress_env" %in% which) {
             lines(
@@ -131,7 +128,6 @@ plot_stress <- function(model,
                 col = "forestgreen",
                 lty = 3
             )
-            legend_df[nrow(legend_df) + 1, ] <- list("env", NA, 3, "forestgreen", 4)
         }
         if ("stress_tox_env" %in% which) {
             lines(
@@ -140,21 +136,13 @@ plot_stress <- function(model,
                 col = "orange",
                 lty = 2
             )
-            legend_df[nrow(legend_df) + 1, ] <- list("tox + env", NA, 2, "orange", 5)
         }
         if ("sys_tox_env" %in% which) {
-            points(
-                concentration,
-                model$sys_tox_env_not_fitted,
-                pch = 16,
-                col = "violetred"
-            )
             lines(
                 curves$concentration,
                 curves$sys_tox_env,
                 col = "violetred"
             )
-            legend_df[nrow(legend_df) + 1, ] <- list("sys (tox + env)", 16, 1, "violetred", 6)
         }
     }
 
@@ -169,13 +157,28 @@ plot_stress <- function(model,
     axis(2, col = NA, col.ticks = par("fg"), las = 1)
 
     if (show_legend) {
-        legend_df <- legend_df[order(legend_df$order), ]
-        legend(
-            "topright",
-            legend = legend_df$text,
-            pch = legend_df$pch,
-            lty = legend_df$lty,
-            col = legend_df$col
+        legend_df <- data.frame(
+            name = c( "sys_tox_observed", "stress_tox", "sys_tox",
+                      "stress_tox_sys", "sys_tox_env_observed", "stress_env",
+                      "stress_tox_env", "sys_tox_env", "stress_tox_env_sys"),
+            text = c("sys (tox, observed)", "tox", "sys (tox)", "tox + sys",
+                     "sys (tox + env, observed)", "env", "tox + env",
+                     "sys (tox + env)", "tox + env + sys"),
+            pch = c(16, NA, NA, NA, 16, NA, NA, NA, NA),
+            lty = c(0, 2, 1, 1, 0, 3, 2, 1, 1),
+            col = c("steelblue3", "deepskyblue", "steelblue3", "blue",
+                    "violetred", "forestgreen", "orange", "violetred", "red"),
+            stringsAsFactors = FALSE
         )
+        legend_df <- legend_df[legend_df$name %in% which, ]
+        if (nrow(legend_df) > 0) {
+            legend(
+                "topright",
+                legend = legend_df$text,
+                pch = legend_df$pch,
+                lty = legend_df$lty,
+                col = legend_df$col
+            )
+        }
     }
 }
