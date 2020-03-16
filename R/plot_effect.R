@@ -20,7 +20,7 @@
 #' @rdname plot_ecxsys
 #' @export
 plot_effect <- function(model,
-                        which = NULL,
+                        which = NA,
                         show_legend = FALSE,
                         xlab = "concentration",
                         ylab = "effect",
@@ -32,7 +32,7 @@ plot_effect <- function(model,
         curve_names[startsWith(curve_names, "effect")],
         "effect_tox_observed", "effect_tox_env_observed"  # the observed points
     )
-    if (is.null(which)) {
+    if (length(which) == 1 && is.na(which)) {
         which <- c("effect_tox", "effect_tox_sys", "effect_tox_observed")
         if (model$with_env) {
             which <- c(which, "effect_tox_env", "effect_tox_env_sys",
@@ -43,12 +43,12 @@ plot_effect <- function(model,
             stop("'all' must not be combined with other curve names.")
         }
         which <- valid_names
+    } else if (!model$with_env && any(grepl("env", which, fixed = TRUE))) {
+        warning("'which' contains names with 'env' but the model was built ",
+                "without environmental effects.")
+        which <- which[which %in% valid_names]
     } else if (any(!which %in% valid_names)) {
         warning("Argument 'which' contains invalid names.")
-        if (!model$with_env && any(grepl("env", which, fixed = TRUE))) {
-            warning("'which' contains names with 'env' but the model was",
-                    " built without environmental effects.")
-        }
         which <- which[which %in% valid_names]
     }
 

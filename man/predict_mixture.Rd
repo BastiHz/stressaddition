@@ -17,7 +17,9 @@ predict_mixture(
 \item{model_a, model_b}{The ecxsys models of the toxicants.}
 
 \item{concentration_a, concentration_b}{The concentrations of the toxicants in
-the mixture. Both vectors must be the same length.}
+the mixture. Both vectors must either be the same length or the longer
+length must be a multiple of the shorter length. That's because the shorter
+concentration vector gets recycled to the length of the longer one.}
 
 \item{proportion_ca}{The proportion of concentration addition in the
 calculation of the toxicant stress of the mixture. Must be between 0 and 1.}
@@ -63,10 +65,10 @@ predict_mixture(
 
 # Example of symmetric prediction:
 conc_a <- c(0, 0.03, 0.3, 3)
-conc_b <- rep(5.5, 4)
+conc_b <- 5.5
 prop_ca <- 0.75
-effect_a <- predict_mixture(toxicant_a , toxicant_b , conc_a, conc_b, prop_ca)
-effect_b <- predict_mixture(toxicant_b , toxicant_a , conc_b, conc_a, prop_ca)
-identical(effect_a$mixture_effect, effect_b$mixture_effect)
+mix_a <- predict_mixture(toxicant_a , toxicant_b , conc_a, conc_b, prop_ca)
+mix_b <- predict_mixture(toxicant_b , toxicant_a , conc_b, conc_a, prop_ca)
+identical(mix_a$effect, mix_b$effect)
 
 }
