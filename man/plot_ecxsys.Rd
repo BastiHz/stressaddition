@@ -8,7 +8,7 @@
 \usage{
 plot_effect(
   model,
-  which = NULL,
+  which = NA,
   show_legend = FALSE,
   xlab = "concentration",
   ylab = "effect",
@@ -17,7 +17,7 @@ plot_effect(
 
 plot_stress(
   model,
-  which = NULL,
+  which = NA,
   show_legend = FALSE,
   xlab = "concentration",
   ylab = "stress",
@@ -31,8 +31,9 @@ plot_stress(
 \code{model$curves} data frame. There is also \code{"effect_tox_observed"}
 and \code{"effect_tox_env_observed"} for the observed effects and
 \code{"sys_tox_observed"} and \code{"sys_tox_env_observed"} for the
-observed Sys. The default \code{NULL} only plots the most important curves.
-Use \code{which = "all"} to display all curves.}
+observed Sys. The default \code{NA} only plots the most important curves.
+Use \code{which = "all"} to display all curves. An empty vector or
+\code{NULL} creates just the axes.}
 
 \item{show_legend}{Should the plot include a legend? Defaults to \code{FALSE}
 because it may cover some parts of the plot depending on the plot size and

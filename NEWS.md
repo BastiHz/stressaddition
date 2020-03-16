@@ -1,3 +1,8 @@
+# stressaddition 2.4.1
+
+* Fixed unintended behaviour in `plot_effect()` and `plot_stress()` where supplying an empty vector caused the four standard curves to show. Now setting `which` to an empty vector or `NULL` shows just the axes. The default value is NA.
+* Renamed the `mixture_effect` column in the `predict_mixture` output data frame to `effect`.
+
 # stressaddition 2.4.0
 
 * Improved `plot_effect()` and `plot_stress()`. You can now control whether the observed values (the points) should be plotted using the `which` argument.
