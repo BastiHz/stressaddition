@@ -6,7 +6,7 @@
     - merge_requests
     - tags
   script:
-    - R -e 'devtools::install_deps(quiet = TRUE)'
+    - R -e 'devtools::install_deps()'
     - R -e 'devtools::check(error_on = "warning")'
 
 # latest version of the previous major R release
