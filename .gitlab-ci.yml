@@ -9,10 +9,10 @@
     - R -e 'devtools::install_deps()'
     - R -e 'devtools::check(error_on = "warning")'
 
-# latest version of the previous major R release
-check-previous:
-  image: rocker/tidyverse:3.5.3
-  <<: *check_job_template
+# # latest version of the previous major R release
+# check-previous:
+#   image: rocker/tidyverse:3.5.3
+#   <<: *check_job_template
 
 # latest R release
 check-latest:
