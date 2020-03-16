@@ -31,7 +31,9 @@
 #'
 #' @param model_a,model_b The ecxsys models of the toxicants.
 #' @param concentration_a,concentration_b The concentrations of the toxicants in
-#'   the mixture. Both vectors must be the same length.
+#'   the mixture. Both vectors must either be the same length or the longer
+#'   length must be a multiple of the shorter length. That's because the shorter
+#'   concentration vector gets recycled to the length of the longer one.
 #' @param proportion_ca The proportion of concentration addition in the
 #'   calculation of the toxicant stress of the mixture. Must be between 0 and 1.
 #' @param effect_max Controls the scaling of the result. This represents the
@@ -61,7 +63,7 @@
 #'
 #' # Example of symmetric prediction:
 #' conc_a <- c(0, 0.03, 0.3, 3)
-#' conc_b <- rep(5.5, 4)
+#' conc_b <- 5.5
 #' prop_ca <- 0.75
 #' mix_a <- predict_mixture(toxicant_a , toxicant_b , conc_a, conc_b, prop_ca)
 #' mix_b <- predict_mixture(toxicant_b , toxicant_a , conc_b, conc_a, prop_ca)
@@ -81,7 +83,6 @@ predict_mixture <- function(model_a,
         is.numeric(concentration_b),
         length(concentration_a) > 0,
         length(concentration_b) > 0,
-        length(concentration_a) == length(concentration_b),
         all(!is.na(concentration_a)),
         all(!is.na(concentration_b)),
         proportion_ca >= 0,

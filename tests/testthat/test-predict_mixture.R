@@ -38,7 +38,7 @@ test_that("results have not changed", {
         model_a,
         model_b,
         c(0, 0.01, 0.1, 1, 7, 15),
-        rep(5, 6),
+        5,
         0.3
     )$effect
     reference <- c(88.574578, 84.361552, 80.633762, 56.730550, 2.882718, 0)
@@ -71,7 +71,7 @@ test_that("results have not changed", {
 
 test_that("predictions are symmetric", {
     conc_a <- c(0, 10^seq(log10(0.001), log10(40), length.out = 50))
-    conc_b <- rep(3.5, length(conc_a))
+    conc_b <- 3.5
     prop_ca <- 0.8
     effect_12 <- predict_mixture(model_a, model_b, conc_a, conc_b, prop_ca)$effect
     effect_21 <- predict_mixture(model_b, model_a, conc_b, conc_a, prop_ca)$effect

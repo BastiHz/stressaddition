@@ -1,7 +1,8 @@
-# stressaddition 2.4.1
+# stressaddition 2.5.0
 
 * Fixed unintended behaviour in `plot_effect()` and `plot_stress()` where supplying an empty vector caused the four standard curves to show. Now setting `which` to an empty vector or `NULL` shows just the axes. The default value is NA.
 * Renamed the `mixture_effect` column in the `predict_mixture` output data frame to `effect`.
+* Remove the restriction that the concentration vectors in `predict_mixture()` must be the same length. The longer length must be a multiple of the shorter length because the shorter vector gets recycled to the longer length.
 
 # stressaddition 2.4.0
 
