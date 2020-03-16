@@ -65,8 +65,8 @@ predict_mixture(
 conc_a <- c(0, 0.03, 0.3, 3)
 conc_b <- rep(5.5, 4)
 prop_ca <- 0.75
-effect_a <- predict_mixture(toxicant_a , toxicant_b , conc_a, conc_b, prop_ca)
-effect_b <- predict_mixture(toxicant_b , toxicant_a , conc_b, conc_a, prop_ca)
-identical(effect_a$mixture_effect, effect_b$mixture_effect)
+mix_a <- predict_mixture(toxicant_a , toxicant_b , conc_a, conc_b, prop_ca)
+mix_b <- predict_mixture(toxicant_b , toxicant_a , conc_b, conc_a, prop_ca)
+identical(mix_a$effect, mix_b$effect)
 
 }

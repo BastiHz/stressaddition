@@ -63,9 +63,9 @@
 #' conc_a <- c(0, 0.03, 0.3, 3)
 #' conc_b <- rep(5.5, 4)
 #' prop_ca <- 0.75
-#' effect_a <- predict_mixture(toxicant_a , toxicant_b , conc_a, conc_b, prop_ca)
-#' effect_b <- predict_mixture(toxicant_b , toxicant_a , conc_b, conc_a, prop_ca)
-#' identical(effect_a$mixture_effect, effect_b$mixture_effect)
+#' mix_a <- predict_mixture(toxicant_a , toxicant_b , conc_a, conc_b, prop_ca)
+#' mix_b <- predict_mixture(toxicant_b , toxicant_a , conc_b, conc_a, prop_ca)
+#' identical(mix_a$effect, mix_b$effect)
 #'
 #' @export
 predict_mixture <- function(model_a,
@@ -129,11 +129,11 @@ predict_mixture <- function(model_a,
     proportion_sam <- 1 - proportion_ca
     stress_tox_total <- stress_tox_ca * proportion_ca + stress_tox_sam * proportion_sam
     stress_total <- stress_tox_total + sys_total
-    mixture_effect <- stress_to_effect(stress_total) * effect_max
+    effect <- stress_to_effect(stress_total) * effect_max
 
-    # unname() to remove the name when concentration_a is a single number.
-    mixture_effect <- unname(mixture_effect)
-    data.frame(concentration_a, concentration_b, mixture_effect)
+    # Setting row.names to NULL to prevent row names when one of the
+    # concentrations is a single number.
+    data.frame(concentration_a, concentration_b, effect, row.names = NULL)
 }
 
 

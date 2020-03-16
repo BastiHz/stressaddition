@@ -40,7 +40,7 @@ test_that("results have not changed", {
         c(0, 0.01, 0.1, 1, 7, 15),
         rep(5, 6),
         0.3
-    )$mixture_effect
+    )$effect
     reference <- c(88.574578, 84.361552, 80.633762, 56.730550, 2.882718, 0)
     expect_equal(new, reference, tolerance = 1e-5)
 
@@ -51,7 +51,7 @@ test_that("results have not changed", {
         c(0, 0.01, 0.1, 1, 7, 15),
         c(0, 0.02, 0.2, 2, 14, 30),
         0.3
-    )$mixture_effect
+    )$effect
     reference <- c(88.2698383, 79.9617127, 78.1574808, 65.7999834, 0.3861678, 0)
     expect_equal(new, reference, tolerance = 1e-5)
 
@@ -63,7 +63,7 @@ test_that("results have not changed", {
         c(0, 0.02, 0.2, 2, 14, 30),
         0.3,
         42
-    )$mixture_effect
+    )$effect
     reference <- c(88.2698383, 79.9617127, 78.1574808, 65.7999834, 0.3861678, 0) * 0.42
     expect_equal(new, reference, tolerance = 1e-5)
 })
@@ -73,8 +73,8 @@ test_that("predictions are symmetric", {
     conc_a <- c(0, 10^seq(log10(0.001), log10(40), length.out = 50))
     conc_b <- rep(3.5, length(conc_a))
     prop_ca <- 0.8
-    effect_12 <- predict_mixture(model_a, model_b, conc_a, conc_b, prop_ca)$mixture_effect
-    effect_21 <- predict_mixture(model_b, model_a, conc_b, conc_a, prop_ca)$mixture_effect
+    effect_12 <- predict_mixture(model_a, model_b, conc_a, conc_b, prop_ca)$effect
+    effect_21 <- predict_mixture(model_b, model_a, conc_b, conc_a, prop_ca)$effect
     expect_equal(effect_12, effect_21)
 })
 
