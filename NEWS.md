@@ -1,3 +1,11 @@
+# stressaddition 2.6.0
+
+* The `curves` data frame in the output of `ecxsys()` now contains a column with the concentrations which are used for the plot functions in this package. This is useful for generating a nicer concentration axis.
+* Changes to `ec()`:
+    * Renamed `response_value` to `effect` in the output list.
+    * `response_level` of 0 or 100 is now allowed. 0 returns the concentration 0 and 100 returns the concentration `Inf`. Previously this resulted in an error.
+    * It is now possible to set the reference to a custom value, for example 100.
+
 # stressaddition 2.5.0
 
 * Fixed unintended behaviour in `plot_effect()` and `plot_stress()` where supplying an empty vector caused the four standard curves to show. Now setting `which` to an empty vector or `NULL` shows just the axes. The default value is NA.

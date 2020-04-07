@@ -60,7 +60,7 @@ A list (of class ecxsys) containing many different objects of which
     returned by \code{\link{predict_ecxsys}}. The concentrations are
     regularly spaced on a logarithmic scale in the given concentration range.
     The control is approximated by the lowest non-control concentration times
-    1e-7. The additional column \code{use_for_plotting} is used by the
+    1e-7. The additional column \code{concentration_for_plots} is used by the
     plotting functions of this package to approximate the control and
     generate a break in the concentration axis.}
   }

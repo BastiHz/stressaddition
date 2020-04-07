@@ -4,12 +4,13 @@
 \alias{ec}
 \title{Effect Concentrations}
 \usage{
-ec(model, response_name, response_level)
+ec(model, response_name, response_level, reference, warn = TRUE)
 }
 \arguments{
 \item{model}{This can be one of three types of objects: Either the output of
 \code{\link{ecxsys}} or the output of \code{\link{predict_ecxsys}} or a
 data frame with a "concentration" column and a \code{response_name} column.
+In the case of the data frame the first row is assumed to be the control.
 See the examples.}
 
 \item{response_name}{The name of the effect or stress for which you want to
@@ -19,10 +20,21 @@ calculate the EC. Must be one of \code{colnames(model$curves)}.}
 and 100. For example with the value 10 the function will return the EC10,
 i.e. the concentration where the response falls below 90 \% of the control
 response.}
+
+\item{reference}{The reference value of the response, usually the control at
+concentration 0. This argument is optional. If it is missing, the first
+value of the response is used as control. This value determines what number
+\code{response_level} actually corresponds to. For example if
+response_level is 10 and reference is 45, then the function returns the
+concentration where the curve is reduced by 10\% relative to 45 = 40.5.}
+
+\item{warn}{Logical. Should the function emit a warning if the calculation of
+the effect concentration is not possible?}
 }
 \value{
-A list containing the response concentration and the corresponding
-  response value.
+A list containing the effect concentration and the corresponding
+  effect. The effect will be \code{NA} if its calculation is impossible from
+  the supplied data.
 }
 \description{
 Estimate the concentration to reach a certain effect or stress level relative
@@ -39,8 +51,8 @@ increasing concentration, i.e. all \code{effect_*} curves and also
 unexpected results, if any.
 }
 \examples{
-# Calculate the EC_10, the concentration where the effect falls
-# below 90 \% of the effect in the control.
+# Calculate the EC10, the concentration where the effect falls
+# below 90\% of the effect in the control.
 
 model <- ecxsys(
     concentration = c(0, 0.05, 0.5, 5, 30),
@@ -63,5 +75,9 @@ df_custom <- data.frame(
     foo = curves$effect_tox_sys
 )
 ec(df_custom, "foo", 10)
+
+# Calculate the EC50 relative to an effect of 100
+# instead of relative to the control:
+ec(model, "effect_tox_sys", 50, reference = 100)
 
 }

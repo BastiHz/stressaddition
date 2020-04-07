@@ -51,10 +51,12 @@ plot_stress <- function(model,
         which <- which[which %in% valid_names]
     }
 
-    temp <- adjust_plot_concentrations(model)
-    curves <- temp$curves
-    log_ticks <- get_log_ticks(curves$concentration)
-    concentration <- c(curves$concentration[1], model$args$concentration[-1])
+    curves <- model$curves
+    log_ticks <- get_log_ticks(curves$concentration_for_plots)
+    point_concentration <- c(
+        curves$concentration_for_plots[1],
+        model$args$concentration[-1]
+    )
 
     curves_w <- curves[, which[!endsWith(which, "observed")]]
     ymax <- if (NCOL(curves_w) == 0) 1 else max(curves_w, 1, na.rm = TRUE)
@@ -62,7 +64,7 @@ plot_stress <- function(model,
     plot(
         NA,
         NA,
-        xlim = range(curves$concentration, na.rm = TRUE),
+        xlim = range(curves$concentration_for_plots, na.rm = TRUE),
         ylim = c(0, ymax),
         log = "x",
         xlab = xlab,
@@ -77,7 +79,7 @@ plot_stress <- function(model,
     # are on top of solid lines for better visibility.
     if ("sys_tox_observed" %in% which) {
         points(
-            concentration,
+            point_concentration,
             model$sys_tox_observed,
             pch = 16,
             col = "steelblue3"
@@ -85,14 +87,14 @@ plot_stress <- function(model,
     }
     if ("stress_tox_sys" %in% which) {
         lines(
-            curves$concentration,
+            curves$concentration_for_plots,
             curves$stress_tox_sys,
             col = "blue"
         )
     }
     if ("stress_tox" %in% which) {
         lines(
-            curves$concentration,
+            curves$concentration_for_plots,
             curves$stress_tox,
             col = "deepskyblue",
             lty = 2
@@ -100,7 +102,7 @@ plot_stress <- function(model,
     }
     if ("sys_tox" %in% which) {
         lines(
-            curves$concentration,
+            curves$concentration_for_plots,
             curves$sys_tox,
             col = "steelblue3"
         )
@@ -108,7 +110,7 @@ plot_stress <- function(model,
     if (model$with_env) {
         if ("sys_tox_env_observed" %in% which) {
             points(
-                concentration,
+                point_concentration,
                 model$sys_tox_env_observed,
                 pch = 16,
                 col = "violetred"
@@ -116,14 +118,14 @@ plot_stress <- function(model,
         }
         if ("stress_tox_env_sys" %in% which) {
             lines(
-                curves$concentration,
+                curves$concentration_for_plots,
                 curves$stress_tox_env_sys,
                 col = "red"
             )
         }
         if ("stress_env" %in% which) {
             lines(
-                curves$concentration,
+                curves$concentration_for_plots,
                 curves$stress_env,
                 col = "forestgreen",
                 lty = 3
@@ -131,7 +133,7 @@ plot_stress <- function(model,
         }
         if ("stress_tox_env" %in% which) {
             lines(
-                curves$concentration,
+                curves$concentration_for_plots,
                 curves$stress_tox_env,
                 col = "orange",
                 lty = 2
@@ -139,7 +141,7 @@ plot_stress <- function(model,
         }
         if ("sys_tox_env" %in% which) {
             lines(
-                curves$concentration,
+                curves$concentration_for_plots,
                 curves$sys_tox_env,
                 col = "violetred"
             )
@@ -153,7 +155,7 @@ plot_stress <- function(model,
          col = NA, col.ticks = par("fg"))
     axis(1, at = log_ticks$minor, labels = FALSE, tcl = -0.25,
          col = NA, col.ticks = par("fg"))
-    plotrix::axis.break(1, breakpos = temp$axis_break_conc)
+    plotrix::axis.break(1, breakpos = model$axis_break_conc)
     axis(2, col = NA, col.ticks = par("fg"), las = 1)
 
     if (show_legend) {

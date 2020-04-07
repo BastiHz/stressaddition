@@ -161,7 +161,7 @@ test_that("the curves have not changed", {
         sys_tox_env = c(0.25443, 0.20496, 0.04445, 0.00000, 0.00000),
         stress_tox_env_sys = c(0.61020, 0.63691, 0.59102, 0.85800, 1.33916),
         effect_tox_env_sys = c(29.35449, 24.84147, 32.75385, 1.93182, 0),
-        use_for_plotting = c(TRUE, TRUE, TRUE, TRUE, TRUE)
+        concentration_for_plots = c(0.0001, 0.03004, 0.30512, 3.02551, 30)
     )
     class(new_curves) <- class(reference_curves)
     expect_equal(new_curves, reference_curves, tolerance = 1e-3)
@@ -171,7 +171,7 @@ test_that("the curves have not changed", {
 test_that("the returned fn works the same way as internally", {
     # I don't know why it would fail but it doesn't hurt to test it.
     curves <- mod$curves
-    curves$use_for_plotting <- NULL  # remove column "use_for_plotting"
+    curves$concentration_for_plots <- NULL
     expect_identical(curves, predict_ecxsys(mod, curves$concentration))
 })
 

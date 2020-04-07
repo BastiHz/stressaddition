@@ -77,7 +77,7 @@
 #'     returned by \code{\link{predict_ecxsys}}. The concentrations are
 #'     regularly spaced on a logarithmic scale in the given concentration range.
 #'     The control is approximated by the lowest non-control concentration times
-#'     1e-7. The additional column \code{use_for_plotting} is used by the
+#'     1e-7. The additional column \code{concentration_for_plots} is used by the
 #'     plotting functions of this package to approximate the control and
 #'     generate a break in the concentration axis.}
 #'   }
@@ -311,9 +311,15 @@ ecxsys <- function(concentration,
         length.out = len_curves
     )
     output$curves <- predict_ecxsys(output, curves_concentration)
-    output$curves$use_for_plotting <-
-        curves_concentration < min_conc * conc_adjust_factor * 1.5 |
-        curves_concentration > min_conc * 1.5
+
+    conc_axis <- adjust_plot_concentrations(
+        curves_concentration,
+        min_conc,
+        conc_adjust_factor
+    )
+    output$curves$concentration_for_plots <- conc_axis$concentration
+    output$axis_break_conc <- conc_axis$axis_break_conc
+
     output
 }
 
@@ -431,4 +437,30 @@ interpolate <- function(x, to_index, n_new, conc = FALSE) {
         x_new <- seq(x[from_index], x[to_index], length.out = len)
     }
     append(x, x_new[-c(1, len)], from_index)
+}
+
+
+adjust_plot_concentrations <- function(concentration,
+                                       min_conc,
+                                       conc_adjust_factor) {
+    # Deals with the concentrations which are unnecessary for plotting. This
+    # means it removes the concentrations in the gap and increases the
+    # concentrations below the gap.
+    use_for_plotting <- (
+        concentration < min_conc * conc_adjust_factor * 1.5 |
+        concentration > min_conc * 1.5
+    )
+    gap_idx <- min(which(!use_for_plotting))
+
+    # Add NAs to force breaks in the lines:
+    axis_break_conc <- concentration[use_for_plotting][gap_idx]
+    concentration[!use_for_plotting] <- NA
+
+    # Shift the small concentrations upwards so the plot has a nice x-axis:
+    concentration[1:gap_idx] <- concentration[1:gap_idx] / conc_adjust_factor
+
+    list(
+        concentration = concentration,
+        axis_break_conc = axis_break_conc
+    )
 }
