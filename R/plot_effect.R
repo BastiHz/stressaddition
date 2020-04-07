@@ -52,15 +52,17 @@ plot_effect <- function(model,
         which <- which[which %in% valid_names]
     }
 
-    temp <- adjust_plot_concentrations(model)
-    curves <- temp$curves
-    log_ticks <- get_log_ticks(curves$concentration)
-    concentration <- c(curves$concentration[1], model$args$concentration[-1])
+    curves <- model$curves
+    log_ticks <- get_log_ticks(curves$concentration_for_plots)
+    point_concentration <- c(
+        curves$concentration_for_plots[1],
+        model$args$concentration[-1]
+    )
 
     plot(
         NA,
         NA,
-        xlim = range(curves$concentration, na.rm = TRUE),
+        xlim = range(curves$concentration_for_plots, na.rm = TRUE),
         ylim = c(0, model$args$effect_max),
         log = "x",
         xlab = xlab,
@@ -75,7 +77,7 @@ plot_effect <- function(model,
     # are on top of solid lines for better visibility.
     if ("effect_tox_observed" %in% which) {
         points(
-            concentration,
+            point_concentration,
             model$args$effect_tox_observed,
             pch = 16,
             col = "blue"
@@ -83,14 +85,14 @@ plot_effect <- function(model,
     }
     if ("effect_tox_sys" %in% which) {
         lines(
-            curves$concentration,
+            curves$concentration_for_plots,
             curves$effect_tox_sys,
             col = "blue"
         )
     }
     if ("effect_tox" %in% which) {
         lines(
-            curves$concentration,
+            curves$concentration_for_plots,
             curves$effect_tox,
             col = "deepskyblue",
             lty = 2
@@ -98,7 +100,7 @@ plot_effect <- function(model,
     }
     if ("effect_tox_LL5" %in% which) {
         lines(
-            curves$concentration,
+            curves$concentration_for_plots,
             curves$effect_tox_LL5,
             col = "darkblue",
             lty = 3
@@ -107,7 +109,7 @@ plot_effect <- function(model,
     if (model$with_env) {
         if ("effect_tox_env_observed" %in% which) {
             points(
-                concentration,
+                point_concentration,
                 model$args$effect_tox_env_observed,
                 pch = 16,
                 col = "red"
@@ -115,14 +117,14 @@ plot_effect <- function(model,
         }
         if ("effect_tox_env_sys" %in% which) {
             lines(
-                curves$concentration,
+                curves$concentration_for_plots,
                 curves$effect_tox_env_sys,
                 col = "red"
             )
         }
         if ("effect_tox_env" %in% which) {
             lines(
-                curves$concentration,
+                curves$concentration_for_plots,
                 curves$effect_tox_env,
                 col = "orange",
                 lty = 2
@@ -130,7 +132,7 @@ plot_effect <- function(model,
         }
         if ("effect_tox_env_LL5" %in% which) {
             lines(
-                curves$concentration,
+                curves$concentration_for_plots,
                 curves$effect_tox_env_LL5,
                 col = "darkred",
                 lty = 3
@@ -145,7 +147,7 @@ plot_effect <- function(model,
          col = NA, col.ticks = par("fg"))
     axis(1, at = log_ticks$minor, labels = FALSE, tcl = -0.25,
          col = NA, col.ticks = par("fg"))
-    plotrix::axis.break(1, breakpos = temp$axis_break_conc)
+    plotrix::axis.break(1, breakpos = model$axis_break_conc)
     axis(2, col = NA, col.ticks = par("fg"), las = 1)
 
     if (show_legend) {
