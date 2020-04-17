@@ -30,7 +30,7 @@ this should be 100 (the default).}
 }
 \value{
 A data frame with columns of the supplied concentrations and the
-  corresponding mixture effects.
+  corresponding mixture effects and stresses.
 }
 \description{
 Given the ecxsys models of two toxicants this method predicts the effects of

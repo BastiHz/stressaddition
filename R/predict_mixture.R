@@ -41,7 +41,7 @@
 #'   this should be 100 (the default).
 #'
 #' @return A data frame with columns of the supplied concentrations and the
-#'   corresponding mixture effects.
+#'   corresponding mixture effects and stresses.
 #'
 #' @examples toxicant_a  <- ecxsys(
 #'     concentration = c(0, 0.05, 0.5, 5, 30),
@@ -132,9 +132,16 @@ predict_mixture <- function(model_a,
     stress_total <- stress_tox_total + sys_total
     effect <- stress_to_effect(stress_total) * effect_max
 
-    # Setting row.names to NULL to prevent row names when one of the
-    # concentrations is a single number.
-    data.frame(concentration_a, concentration_b, effect, row.names = NULL)
+    data.frame(
+        concentration_a = concentration_a,
+        concentration_b = concentration_b,
+        effect = effect,
+        stress_tox_sam = stress_tox_sam,
+        stress_tox_ca = stress_tox_ca,
+        stress_tox = stress_tox_total,
+        sys = sys_total,
+        stress_total = stress_total
+    )
 }
 
 
