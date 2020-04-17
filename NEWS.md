@@ -1,3 +1,8 @@
+# stressaddition 2.7.0
+
+* Fixed some spelling mistakes.
+* `predict_mixture()` now also returns the various stresses.
+
 # stressaddition 2.6.0
 
 * The `curves` data frame in the output of `ecxsys()` now contains a column with the concentrations which are used for the plot functions in this package. This is useful for generating a nicer concentration axis.

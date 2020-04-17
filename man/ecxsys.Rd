@@ -66,7 +66,7 @@ A list (of class ecxsys) containing many different objects of which
   }
 }
 \description{
-The ECx-SyS model for modeling concentration-effect relationships whith
+The ECx-SyS model for modeling concentration-effect relationships with
 hormesis.
 }
 \details{

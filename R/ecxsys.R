@@ -28,7 +28,7 @@
 
 #' ECx-SyS
 #'
-#' The ECx-SyS model for modeling concentration-effect relationships whith
+#' The ECx-SyS model for modeling concentration-effect relationships with
 #' hormesis.
 #'
 #' It is advised to complete the curve down to zero for optimal prediction.
