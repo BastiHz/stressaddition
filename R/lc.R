@@ -17,9 +17,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-#' Effect Concentrations
+#' Lethal Concentrations
 #'
-#' Estimate the concentration to reach a certain effect or stress level relative
+#' Estimate the concentration to reach a certain mortality relative
 #' to the control.
 #'
 #' If the response level occurs multiple times because of hormesis, which may
@@ -27,7 +27,7 @@
 #' smallest concentration is returned.
 #'
 #' This function only makes sense for curves which generally go down with
-#' increasing concentration, i.e. all \code{effect_*} curves and also
+#' increasing concentration, i.e. all \code{survival_*} curves and also
 #' \code{sys_tox} and \code{sys_tox_env}. Others are untested and may give
 #' unexpected results, if any.
 #'
@@ -36,12 +36,13 @@
 #'   data frame with a "concentration" column and a \code{response_name} column.
 #'   In the case of the data frame the first row is assumed to be the control.
 #'   See the examples.
-#' @param response_name The name of the effect or stress for which you want to
-#'   calculate the EC. Must be one of \code{colnames(model$curves)}.
+#' @param response_name The name of the survival or stress for which you want to
+#'   calculate the LC.
 #' @param response_level The desired response level as a percentage between 0
-#'   and 100. For example with the value 10 the function will return the EC10,
+#'   and 100. For example with the value 10 the function will return the LC10,
 #'   i.e. the concentration where the response falls below 90 \% of the control
-#'   response.
+#'   response. In other words: where a mortality of 10 \% relative to the control
+#'   is reached.
 #' @param reference The reference value of the response, usually the control at
 #'   concentration 0. This argument is optional. If it is missing, the first
 #'   value of the response is used as control. This value determines what number
@@ -49,49 +50,49 @@
 #'   response_level is 10 and reference is 45, then the function returns the
 #'   concentration where the curve is reduced by 10\% relative to 45 = 40.5.
 #' @param warn Logical. Should the function emit a warning if the calculation of
-#'   the effect concentration is not possible?
+#'   the lethal concentration is not possible?
 #'
-#' @return A list containing the effect concentration and the corresponding
-#'   effect. The effect will be \code{NA} if its calculation is impossible from
-#'   the supplied data.
+#' @return A list containing the lethal concentration and the corresponding
+#'   survival. The survival will be \code{NA} if its calculation is impossible
+#'   using the supplied data.
 #'
-#' @examples # Calculate the EC10, the concentration where the effect falls
-#' # below 90% of the effect in the control.
+#' @examples # Calculate the LC10, the concentration where the survival falls
+#' # below 90% of the survival in the control.
 #'
 #' model <- ecxsys(
 #'     concentration = c(0, 0.05, 0.5, 5, 30),
 #'     hormesis_concentration = 0.5,
-#'     effect_tox_observed = c(90, 81, 92, 28, 0)
+#'     survival_tox_observed = c(90, 81, 92, 28, 0)
 #' )
 #'
 #' # using the ecxsys() output or the curves therein directly:
-#' ec(model, "effect_tox_sys", 10)
-#' ec(model$curves, "effect_tox_sys", 10)
+#' lc(model, "survival_tox_sys", 10)
+#' lc(model$curves, "survival_tox_sys", 10)
 #'
 #' # using the output of predict_ecxsys() with custom concentrations:
 #' conc <- 10^seq(-9, 1, length.out = 1000)
 #' curves <- predict_ecxsys(model, conc)
-#' ec(curves, "effect_tox_sys", 10)
+#' lc(curves, "survival_tox_sys", 10)
 #'
 #' # using a custom data frame:
 #' df_custom <- data.frame(
 #'     concentration = curves$concentration,
-#'     foo = curves$effect_tox_sys
+#'     foo = curves$survival_tox_sys
 #' )
-#' ec(df_custom, "foo", 10)
+#' lc(df_custom, "foo", 10)
 #'
-#' # Calculate the EC50 relative to an effect of 100
+#' # Calculate the LC50 relative to an survival of 100
 #' # instead of relative to the control:
-#' ec(model, "effect_tox_sys", 50, reference = 100)
+#' lc(model, "survival_tox_sys", 50, reference = 100)
 #'
 #' @export
-ec <- function(model,
+lc <- function(model,
                response_name,
                response_level,
                reference,
                warn = TRUE) {
     if (inherits(model, "drc")) {
-        stop("Please use drc::ED for drc objects.")
+        stop("Please use drc::ED() for drc objects.")
     }
 
     stopifnot(
@@ -122,7 +123,7 @@ ec <- function(model,
     } else {
         stopifnot(reference > 0)
         if (inherits(model, "ecxsys")) {
-            stopifnot(reference <= model$args$effect_max)
+            stopifnot(reference <= model$args$survival_max)
         }
         reference_value <- reference
     }
@@ -130,15 +131,15 @@ ec <- function(model,
     if (reference_value == 0) {
         # May happen with horizontal Sys curves.
         if (warn) {
-            warning("Reference value is zero, calculation of EC is impossible.")
+            warning("Reference value is zero, calculation of LC is impossible.")
         }
-        return(list(effect = 0, concentration = NA))
+        return(list(response = 0, concentration = NA))
     }
 
     if (response_level == 0) {
-        return(list(effect = reference_value, concentration = 0))
+        return(list(response = reference_value, concentration = 0))
     } else if (response_level == 100) {
-        return(list(effect = 0, concentration = Inf))
+        return(list(response = 0, concentration = Inf))
     }
 
     response_value <- (1 - response_level / 100) * reference_value
@@ -151,12 +152,12 @@ ec <- function(model,
                 response_name,
                 "' are smaller than ",
                 100 - response_level,
-                "% of the reference value, which makes determining the EC",
+                "% of the reference value, which makes determining the LC",
                 response_level,
                 " impossible."
             )
         }
-        return(list(effect = response_value, concentration = NA))
+        return(list(response = response_value, concentration = NA))
     }
     if (!any(response_smaller)) {
         if (warn) {
@@ -165,16 +166,16 @@ ec <- function(model,
                 response_name,
                 "' does not fall below ",
                 100 - response_level,
-                "% of the reference, which makes determining the EC",
+                "% of the reference, which makes determining the LC",
                 response_level,
                 " impossible. You could try using predict_ecxsys() to predict ",
                 "more values in a wider concentration range."
             )
         }
-        return(list(effect = response_value, concentration = NA))
+        return(list(response = response_value, concentration = NA))
     }
     if (response[1] == response_value) {
-        return(list(effect = response_value, concentration = 0))
+        return(list(response = response_value, concentration = 0))
     }
 
     below <- which(response < response_value)[1]
@@ -182,8 +183,8 @@ ec <- function(model,
 
     # linear interpolation
     dist <- (response_value - response[below]) / (response[above] - response[below])
-    effect_concentration <- dist *
+    survival_concentration <- dist *
         (concentration[above] - concentration[below]) + concentration[below]
 
-    list(effect = response_value, concentration = effect_concentration)
+    list(response = response_value, concentration = survival_concentration)
 }

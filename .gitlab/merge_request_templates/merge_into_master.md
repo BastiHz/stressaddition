@@ -26,7 +26,7 @@ Comment on any notes that come up during devtools::check().
 * [ ]  update version in DESCRIPTION
 * [ ]  update date in DESCRIPTION
 * [ ]  no remaining TODO, FIXME, or debug prints anywhere in the source files
-* [ ]  `devtools::document()`
+* [ ]  `devtools::document()` and commit the updated .Rd files
 * [ ]  `devtools::check()` without errors or warnings
 
 <!--

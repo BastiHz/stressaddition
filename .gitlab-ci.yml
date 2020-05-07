@@ -1,4 +1,9 @@
-# Using the rocker/tidyverse image because it has devtools installed.
+# Using the rocker/tidyverse image because it has devtools and testthat.
+
+# Use "document = FALSE" to catch potential mismatches between the roxygen
+# comments and the .Rd files. This could happen when checking locally
+# with "document = TRUE" (the default), which updates the .Rd files, but then
+# forgetting to commit and push those updated .Rd files.
 
 .check_template: &check_job_template
   only:
@@ -6,15 +11,20 @@
     - merge_requests
     - tags
   script:
-    - R -e 'devtools::install_deps()'
-    - R -e 'devtools::check(error_on = "warning")'
+    - R -e 'devtools::install_deps(quiet = TRUE)'
+    - R -e 'devtools::check(error_on = "note", document = FALSE)'
 
-# # latest version of the previous major R release
-# check-previous:
-#   image: rocker/tidyverse:3.5.3
-#   <<: *check_job_template
+# Earliest supported version
+check-3.5.1:
+  image: rocker/tidyverse:3.5.1
+  <<: *check_job_template
 
-# latest R release
+# Last version before 4.0.0
+check-3.6.3:
+  image: rocker/tidyverse:3.6.3
+  <<: *check_job_template
+
+# Latest R release
 check-latest:
   image: rocker/tidyverse:latest
   <<: *check_job_template

@@ -17,36 +17,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-# A collection of some internal helper functions.
+# A collection of internal helper functions which are small enough that they
+# don't desere their own scripts. And which are also not exclusively used by one
+# function because then they would be in the script of that function.
 
 
 clamp <- function(x, lower = 0, upper = 1) {
     # Returns lower if x < lower, returns upper if x > upper, else returns x
     pmin(pmax(x, lower), upper)
-}
-
-
-get_log_ticks <- function(x) {
-    # Calculate the positions of major and minor tick marks on a base 10
-    # logarithmic axis.
-    stopifnot(min(x, na.rm = TRUE) > 0)
-    x <- log10(x)
-    major <- 10 ^ seq(
-        floor(min(x, na.rm = TRUE)),
-        ceiling(max(x, na.rm = TRUE))
-    )
-    n_between <- length(major) - 1
-    minor <- integer(n_between * 8)
-    for (i in 1:n_between) {
-        a <- major[i]
-        b <- major[i + 1]
-        minor[seq(i * 8 - 7, i * 8)] <- seq(a + a, b - a, a)
-    }
-    major_tick_labels <- formatC(major, format = "fg")
-    major_tick_labels[1] <- "0"
-    list(
-        major = major,
-        minor = minor,
-        major_labels = major_tick_labels
-    )
 }

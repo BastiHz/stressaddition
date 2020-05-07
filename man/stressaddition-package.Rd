@@ -17,9 +17,8 @@ See the publication linked below for more information including
   equations.
 
   In the paper the model is introduced in the context of survival
-  experiments. However, it can also be used to model other concentration
-  dependent responses. For this reason the more general term "effect" instead
-  of "survival" is used throughout the package.
+  experiments. However, we conjecture that it can also be used to model
+  other concentration dependent responses.
 
   This package is not on CRAN. It is hosted on the UFZ GitLab server. Visit
   the repository linked below for the newest version. See the readme file

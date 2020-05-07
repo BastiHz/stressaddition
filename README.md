@@ -1,20 +1,21 @@
 # stressaddition
 This is the R implementation of the tri-phasic concentration-response model introduced in
-[Liess, M., Henz, S. & Knillmann, S. Predicting low-concentration effects of pesticides. Sci Rep 9, 15248 (2019).](https://doi.org/10.1038/s41598-019-51645-4)
-It allows modeling of ecotoxicological experiments where the response shows signs of a hormesis effect.
+[Liess, M., Henz, S. & Knillmann, S. Predicting low-concentration effects of pesticides. Sci Rep 9, 15248 (2019)](https://doi.org/10.1038/s41598-019-51645-4). It allows modeling of ecotoxicological experiments where the response shows signs of a hormesis effect.
+
+The EC<sub>x-SyS</sub> and Multi-TOX models from this package are also available as part of the [Indicate app](http://www.systemecology.eu/indicate) which offers a graphical user interface.
 
 ## Installation
-Stressaddition is not on CRAN. You can install the most recent stable version from GitLab using the devtools package:
+Stressaddition is not yet on CRAN. You can install the most recent stable version from GitLab using the remotes package:
 ``` r
-# install.packages("devtools")
-devtools::install_gitlab("oekotox/stressaddition", host = "git.ufz.de")
+install.packages("remotes")
+remotes::install_gitlab("oekotox/stressaddition", host = "git.ufz.de")
 ```
-Alternatively there are binary and source builds downloadable from the [releases page](https://git.ufz.de/oekotox/stressaddition/-/releases).
+Alternatively there are binary and source builds of various versions downloadable from the [releases page](https://git.ufz.de/oekotox/stressaddition/-/releases).
 
 ## Updating
 RStudio's integrated package updater won't detect updates in packages installed from GitHub or GitLab. I recommend running 
 ```r
-devtools::update_packages()
+remotes::update_packages()
 ```
 in regular intervals to check for updates from those sources.
 
@@ -22,26 +23,25 @@ in regular intervals to check for updates from those sources.
 Please cite this package if you use it in your analysis. See `citation("stressaddition")` for details.
 
 ## Example
-In the paper we use the model in the context of survival experiments. However, it can also be applicable in modeling other concentration or dose dependent responses. For this reason the more general term "effect" instead of "survival" is used throughout the package.
 ```r
 library(stressaddition)
 model <- ecxsys(
     concentration = c(0, 0.05, 0.5, 5, 30),
     hormesis_concentration = 0.5,
-    effect_tox_observed = c(90, 81, 92, 28, 0),
-    effect_tox_env_observed = c(29, 27, 33, 5, 0)
+    survival_tox_observed = c(90, 81, 92, 28, 0),
+    survival_tox_env_observed = c(29, 27, 33, 5, 0)
 )
 
 # Plot the effect and the system stress:
 par(mfrow = c(2, 1))
-plot_effect(model)
+plot_survival(model)
 plot_stress(model)
 
-# The LC50 of the effect under the influence of toxicant and system tress:
-ec(model, "effect_tox_sys", 50)
+# The LC50 under the influence of toxicant and system tress:
+lc(model, "survival_tox_sys", 50)
 
-# The LC10 of the effect under the influence  of toxicant, system and environmental tress:
-ec(model, "effect_tox_env_sys", 10)
+# The LC10 under the influence  of toxicant, system and environmental tress:
+lc(model, "survival_tox_env_sys", 10)
 ```
 
 ## Copyright and License
