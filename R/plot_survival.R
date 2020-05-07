@@ -19,24 +19,24 @@
 
 #' @rdname plot_ecxsys
 #' @export
-plot_effect <- function(model,
-                        which = NA,
-                        show_legend = FALSE,
-                        xlab = "concentration",
-                        ylab = "effect",
-                        main = NULL) {
+plot_survival <- function(model,
+                          which = NA,
+                          show_legend = FALSE,
+                          xlab = "concentration",
+                          ylab = "survival",
+                          main = NULL) {
     stopifnot(inherits(model, "ecxsys"))
 
     curve_names <- names(model$curves)
     valid_names <- c(
-        curve_names[startsWith(curve_names, "effect")],
-        "effect_tox_observed", "effect_tox_env_observed"  # the observed points
+        curve_names[startsWith(curve_names, "survival")],
+        "survival_tox_observed", "survival_tox_env_observed"  # observed points
     )
     if (length(which) == 1 && is.na(which)) {
-        which <- c("effect_tox", "effect_tox_sys", "effect_tox_observed")
+        which <- c("survival_tox", "survival_tox_sys", "survival_tox_observed")
         if (model$with_env) {
-            which <- c(which, "effect_tox_env", "effect_tox_env_sys",
-                       "effect_tox_env_observed")
+            which <- c(which, "survival_tox_env", "survival_tox_env_sys",
+                       "survival_tox_env_observed")
         }
     } else if ("all" %in% which) {
         if (length(which) > 1) {
@@ -45,7 +45,7 @@ plot_effect <- function(model,
         which <- valid_names
     } else if (!model$with_env && any(grepl("env", which, fixed = TRUE))) {
         warning("'which' contains names with 'env' but the model was built ",
-                "without environmental effects.")
+                "without environmental stress.")
         which <- which[which %in% valid_names]
     } else if (any(!which %in% valid_names)) {
         warning("Argument 'which' contains invalid names.")
@@ -53,7 +53,7 @@ plot_effect <- function(model,
     }
 
     curves <- model$curves
-    log_ticks <- get_log_ticks(curves$concentration_for_plots)
+    ticks <- log10_ticks(curves$concentration_for_plots)
     point_concentration <- c(
         curves$concentration_for_plots[1],
         model$args$concentration[-1]
@@ -63,7 +63,7 @@ plot_effect <- function(model,
         NA,
         NA,
         xlim = range(curves$concentration_for_plots, na.rm = TRUE),
-        ylim = c(0, model$args$effect_max),
+        ylim = c(0, model$args$survival_max),
         log = "x",
         xlab = xlab,
         ylab = ylab,
@@ -75,65 +75,65 @@ plot_effect <- function(model,
 
     # The lines are drawn in this order to ensure that dotted and dashed lines
     # are on top of solid lines for better visibility.
-    if ("effect_tox_observed" %in% which) {
+    if ("survival_tox_observed" %in% which) {
         points(
             point_concentration,
-            model$args$effect_tox_observed,
+            model$args$survival_tox_observed,
             pch = 16,
             col = "blue"
         )
     }
-    if ("effect_tox_sys" %in% which) {
+    if ("survival_tox_sys" %in% which) {
         lines(
             curves$concentration_for_plots,
-            curves$effect_tox_sys,
+            curves$survival_tox_sys,
             col = "blue"
         )
     }
-    if ("effect_tox" %in% which) {
+    if ("survival_tox" %in% which) {
         lines(
             curves$concentration_for_plots,
-            curves$effect_tox,
+            curves$survival_tox,
             col = "deepskyblue",
             lty = 2
         )
     }
-    if ("effect_tox_LL5" %in% which) {
+    if ("survival_tox_LL5" %in% which) {
         lines(
             curves$concentration_for_plots,
-            curves$effect_tox_LL5,
+            curves$survival_tox_LL5,
             col = "darkblue",
             lty = 3
         )
     }
     if (model$with_env) {
-        if ("effect_tox_env_observed" %in% which) {
+        if ("survival_tox_env_observed" %in% which) {
             points(
                 point_concentration,
-                model$args$effect_tox_env_observed,
+                model$args$survival_tox_env_observed,
                 pch = 16,
                 col = "red"
             )
         }
-        if ("effect_tox_env_sys" %in% which) {
+        if ("survival_tox_env_sys" %in% which) {
             lines(
                 curves$concentration_for_plots,
-                curves$effect_tox_env_sys,
+                curves$survival_tox_env_sys,
                 col = "red"
             )
         }
-        if ("effect_tox_env" %in% which) {
+        if ("survival_tox_env" %in% which) {
             lines(
                 curves$concentration_for_plots,
-                curves$effect_tox_env,
+                curves$survival_tox_env,
                 col = "orange",
                 lty = 2
             )
         }
-        if ("effect_tox_env_LL5" %in% which) {
+        if ("survival_tox_env_LL5" %in% which) {
             lines(
                 curves$concentration_for_plots,
-                curves$effect_tox_env_LL5,
+                curves$survival_tox_env_LL5,
                 col = "darkred",
                 lty = 3
             )
@@ -143,18 +143,18 @@ plot_effect <- function(model,
     # The setting of col = NA and col.ticks = par("fg") is to prevent ugly line
     # thickness issues when plotting as a png with type = "cairo" and at a low
     # resolution.
-    axis(1, at = log_ticks$major, labels = log_ticks$major_labels,
+    axis(1, at = ticks$major, labels = ticks$major_labels,
          col = NA, col.ticks = par("fg"))
-    axis(1, at = log_ticks$minor, labels = FALSE, tcl = -0.25,
+    axis(1, at = ticks$minor, labels = FALSE, tcl = -0.25,
          col = NA, col.ticks = par("fg"))
     plotrix::axis.break(1, breakpos = model$axis_break_conc)
     axis(2, col = NA, col.ticks = par("fg"), las = 1)
 
     if (show_legend) {
         legend_df <- data.frame(
-            name = c("effect_tox_observed", "effect_tox", "effect_tox_sys",
-                     "effect_tox_LL5", "effect_tox_env_observed",
-                     "effect_tox_env", "effect_tox_env_sys", "effect_tox_env_LL5"),
+            name = c("survival_tox_observed", "survival_tox", "survival_tox_sys",
+                     "survival_tox_LL5", "survival_tox_env_observed",
+                     "survival_tox_env", "survival_tox_env_sys", "survival_tox_env_LL5"),
             text = c("tox (observed)", "tox", "tox + sys", "tox (LL5)",
                      "tox + env (observed)", "tox + env", "tox + env + sys",
                      "tox + env (LL5)"),

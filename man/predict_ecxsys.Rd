@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict_ecxsys.R
 \name{predict_ecxsys}
 \alias{predict_ecxsys}
-\title{Predict effects and stresses}
+\title{Predict survival and stress}
 \usage{
 predict_ecxsys(model, concentration)
 }
@@ -16,23 +16,23 @@ A data frame (of class "ecxsys_predicted") with the following
   columns:
   \describe{
     \item{concentration}{The supplied concentrations.}
-    \item{effect_tox_LL5}{The effect predicted by the five-parameter
+    \item{survival_tox_LL5}{The survival predicted by the five-parameter
     log-logistic model derived from the observations under toxicant stress
     but without environmental stress.}
-    \item{effect_tox}{Modeled effect resulting from toxicant stress.}
-    \item{effect_tox_sys}{Modeled effect resulting from toxicant and system
-    stress.}
+    \item{survival_tox}{Modeled survival resulting from toxicant stress.}
+    \item{survival_tox_sys}{Modeled survival resulting from toxicant
+    and system stress.}
     \item{stress_tox}{The toxicant stress.}
     \item{sys_tox}{System stress under toxicant stress conditions
     without environmental stress.}
     \item{stress_tox_sys}{The sum of \code{stress_tox} and
     \code{sys_tox}.}
-    \item{effect_tox_env_LL5}{The effect predicted by the five-parameter
+    \item{survival_tox_env_LL5}{The survival predicted by the five-parameter
     log-logistic model derived from the observations under toxicant stress
     with environmental stress.}
-    \item{effect_tox_env}{Modeled effect resulting from toxicant and
+    \item{survival_tox_env}{Modeled survival resulting from toxicant and
     environmental stress.}
-    \item{effect_tox_env_sys}{Modeled effect resulting from toxicant,
+    \item{survival_tox_env_sys}{Modeled survival resulting from toxicant,
     environmental and system stress.}
     \item{stress_env}{Environmental stress.}
     \item{stress_tox_env}{The sum of toxicant and environmental stress.}
@@ -43,15 +43,15 @@ A data frame (of class "ecxsys_predicted") with the following
   }
 }
 \description{
-Calculate the effects and stresses of an ECx-SyS model at arbitrary
+Calculate the survivals and stresses of an ECx-SyS model at arbitrary
 concentrations.
 }
 \examples{
 model <- ecxsys(
     concentration = c(0, 0.05, 0.5, 5, 30),
     hormesis_concentration = 0.5,
-    effect_tox_observed = c(90, 81, 92, 28, 0),
-    effect_tox_env_observed = c(29, 27, 33, 5, 0)
+    survival_tox_observed = c(90, 81, 92, 28, 0),
+    survival_tox_env_observed = c(29, 27, 33, 5, 0)
 )
 p <- predict_ecxsys(model, c(0.001, 0.01, 0.1, 1, 10))
 

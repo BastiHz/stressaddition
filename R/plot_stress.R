@@ -44,7 +44,7 @@ plot_stress <- function(model,
         which <- valid_names
     } else if (!model$with_env && any(grepl("env", which, fixed = TRUE))) {
         warning("'which' contains names with 'env' but the model was built ",
-                "without environmental effects.")
+                "without environmental stress.")
         which <- which[which %in% valid_names]
     } else if (any(!which %in% valid_names)) {
         warning("Argument 'which' contains invalid names.")
@@ -52,14 +52,25 @@ plot_stress <- function(model,
     }
 
     curves <- model$curves
-    log_ticks <- get_log_ticks(curves$concentration_for_plots)
+    ticks <- log10_ticks(curves$concentration_for_plots)
     point_concentration <- c(
         curves$concentration_for_plots[1],
         model$args$concentration[-1]
     )
 
-    curves_w <- curves[, which[!endsWith(which, "observed")]]
-    ymax <- if (NCOL(curves_w) == 0) 1 else max(curves_w, 1, na.rm = TRUE)
+    if (is.null(which)) {
+        ymax = 1
+    } else {
+        which_lines <- which[!endsWith(which, "observed")]
+        if (length(which_lines) == 0) {
+            ymax <- 1
+        } else {
+            ymax <- max(curves[, which_lines], 1, na.rm = TRUE)
+            # No need to include the observed stress in the call to max() no
+            # matter if those are in "which" or not because these vectors are
+            # clamped to [0, 1] anyway.
+        }
+    }
 
     plot(
         NA,
@@ -151,9 +162,9 @@ plot_stress <- function(model,
     # The setting of col = NA and col.ticks = par("fg") is to prevent ugly line
     # thickness issues when plotting as a png with type = "cairo" and at a low
     # resolution.
-    axis(1, at = log_ticks$major, labels = log_ticks$major_labels,
+    axis(1, at = ticks$major, labels = ticks$major_labels,
          col = NA, col.ticks = par("fg"))
-    axis(1, at = log_ticks$minor, labels = FALSE, tcl = -0.25,
+    axis(1, at = ticks$minor, labels = FALSE, tcl = -0.25,
          col = NA, col.ticks = par("fg"))
     plotrix::axis.break(1, breakpos = model$axis_break_conc)
     axis(2, col = NA, col.ticks = par("fg"), las = 1)

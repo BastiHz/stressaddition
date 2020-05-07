@@ -17,10 +17,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-#' Predict the effect of a mixture of two toxicants
+#' Predict the survival of binary toxicant mixtures
 #'
-#' Given the ecxsys models of two toxicants this method predicts the effects of
-#' different mixtures of both.
+#' The Multi-TOX model predicts the effects of binary toxicant mixtures based on
+#' three-phasic concentration-response relationships. See the publication for
+#' details.
 #'
 #' The predictions are symmetric, i.e. it does not matter which of the toxicant
 #' models is 1 or 2 as long as the concentration arguments are supplied in the
@@ -34,27 +35,28 @@
 #'   the mixture. Both vectors must either be the same length or the longer
 #'   length must be a multiple of the shorter length. That's because the shorter
 #'   concentration vector gets recycled to the length of the longer one.
-#' @param proportion_ca The proportion of concentration addition in the
-#'   calculation of the toxicant stress of the mixture. Must be between 0 and 1.
-#' @param effect_max Controls the scaling of the result. This represents the
-#'   maximum value the effect could possibly reach. For survival data in percent
-#'   this should be 100 (the default).
+#' @param sa_contribution The proportion of stress addition contributing to the
+#'   calculation of the toxicant stress in the mixture. Must be between 0 and 1
+#'   where 1 stands for 100 \% stress addition.
+#' @param survival_max Controls the scaling of the result. This represents the
+#'   maximum value the survival could possibly reach. For survival data in
+#'   percent this should be 100 (the default).
 #'
 #' @return A data frame with columns of the supplied concentrations and the
-#'   corresponding mixture effects and stresses.
+#'   corresponding mixture survival and stresses.
 #'
 #' @examples toxicant_a  <- ecxsys(
 #'     concentration = c(0, 0.05, 0.5, 5, 30),
 #'     hormesis_concentration = 0.5,
-#'     effect_tox_observed = c(90, 81, 92, 28, 0),
+#'     survival_tox_observed = c(90, 81, 92, 28, 0),
 #' )
 #' toxicant_b  <- ecxsys(
 #'     concentration = c(0, 0.1, 1, 10, 100, 1000),
 #'     hormesis_concentration = 10,
-#'     effect_tox_observed = c(26, 25, 24, 27, 5, 0),
-#'     effect_max = 30
+#'     survival_tox_observed = c(26, 25, 24, 27, 5, 0),
+#'     survival_max = 30
 #' )
-#' predict_mixture(
+#' multi_tox(
 #'     toxicant_a ,
 #'     toxicant_b ,
 #'     c(0, 0.02, 0.2, 2, 20),
@@ -64,18 +66,18 @@
 #' # Example of symmetric prediction:
 #' conc_a <- c(0, 0.03, 0.3, 3)
 #' conc_b <- 5.5
-#' prop_ca <- 0.75
-#' mix_a <- predict_mixture(toxicant_a , toxicant_b , conc_a, conc_b, prop_ca)
-#' mix_b <- predict_mixture(toxicant_b , toxicant_a , conc_b, conc_a, prop_ca)
-#' identical(mix_a$effect, mix_b$effect)
+#' sa_contrib <- 0.75
+#' mix_a <- multi_tox(toxicant_a , toxicant_b , conc_a, conc_b, sa_contrib)
+#' mix_b <- multi_tox(toxicant_b , toxicant_a , conc_b, conc_a, sa_contrib)
+#' identical(mix_a$survival, mix_b$survival)
 #'
 #' @export
-predict_mixture <- function(model_a,
-                            model_b,
-                            concentration_a,
-                            concentration_b,
-                            proportion_ca = 0.5,
-                            effect_max = 100) {
+multi_tox <- function(model_a,
+                      model_b,
+                      concentration_a,
+                      concentration_b,
+                      sa_contribution = 0.5,
+                      survival_max = 100) {
     stopifnot(
         inherits(model_a, "ecxsys"),
         inherits(model_b, "ecxsys"),
@@ -85,8 +87,8 @@ predict_mixture <- function(model_a,
         length(concentration_b) > 0,
         all(!is.na(concentration_a)),
         all(!is.na(concentration_b)),
-        proportion_ca >= 0,
-        proportion_ca <= 1,
+        sa_contribution >= 0,
+        sa_contribution <= 1,
         model_a$args$p == model_b$args$p,
         model_a$args$q == model_b$args$q
     )
@@ -95,29 +97,29 @@ predict_mixture <- function(model_a,
     predicted_model_b <- predict_ecxsys(model_b, concentration_b)
 
     # tox stress ----------------------------------------------------------
-    stress_tox_sam <- predicted_model_a$stress_tox + predicted_model_b$stress_tox
+    stress_tox_sa <- predicted_model_a$stress_tox + predicted_model_b$stress_tox
 
     # Convert the model_b concentration into an equivalent model_a concentration
     # and vice versa.
     concentration_b_equivalent <- W1.2_inverse(
-        model_a$effect_tox_mod,
-        predicted_model_b$effect_tox / model_b$args$effect_max
+        model_a$survival_tox_mod,
+        predicted_model_b$survival_tox / model_b$args$survival_max
     )
-    effect_tox_ca_a <- predict(
-        model_a$effect_tox_mod,
+    survival_tox_ca_a <- predict(
+        model_a$survival_tox_mod,
         data.frame(concentration = concentration_a + concentration_b_equivalent)
     )
-    stress_tox_ca_a <- effect_to_stress(effect_tox_ca_a)
+    stress_tox_ca_a <- survival_to_stress(survival_tox_ca_a)
 
     concentration_a_equivalent <- W1.2_inverse(
-        model_b$effect_tox_mod,
-        predicted_model_a$effect_tox / model_a$args$effect_max
+        model_b$survival_tox_mod,
+        predicted_model_a$survival_tox / model_a$args$survival_max
     )
-    effect_tox_ca_b <- predict(
-        model_b$effect_tox_mod,
+    survival_tox_ca_b <- predict(
+        model_b$survival_tox_mod,
         data.frame(concentration = concentration_b + concentration_a_equivalent)
     )
-    stress_tox_ca_b <- effect_to_stress(effect_tox_ca_b)
+    stress_tox_ca_b <- survival_to_stress(survival_tox_ca_b)
 
     stress_tox_ca <- (stress_tox_ca_a + stress_tox_ca_b) / 2
 
@@ -127,16 +129,16 @@ predict_mixture <- function(model_a,
     sys_total <- (sys_a + sys_b) / 2
 
     # combined stress and result ------------------------------------------
-    proportion_sam <- 1 - proportion_ca
-    stress_tox_total <- stress_tox_ca * proportion_ca + stress_tox_sam * proportion_sam
+    ca_contribution <- 1 - sa_contribution
+    stress_tox_total <- stress_tox_sa * sa_contribution + stress_tox_ca * ca_contribution
     stress_total <- stress_tox_total + sys_total
-    effect <- stress_to_effect(stress_total) * effect_max
+    survival <- stress_to_survival(stress_total) * survival_max
 
     data.frame(
         concentration_a = concentration_a,
         concentration_b = concentration_b,
-        effect = effect,
-        stress_tox_sam = stress_tox_sam,
+        survival = survival,
+        stress_tox_sa = stress_tox_sa,
         stress_tox_ca = stress_tox_ca,
         stress_tox = stress_tox_total,
         sys = sys_total,

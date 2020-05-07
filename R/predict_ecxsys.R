@@ -17,9 +17,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-#' Predict effects and stresses
+#' Predict survival and stress
 #'
-#' Calculate the effects and stresses of an ECx-SyS model at arbitrary
+#' Calculate the survivals and stresses of an ECx-SyS model at arbitrary
 #' concentrations.
 #'
 #' @param model An ECx-SyS model as returned by \code{\link{ecxsys}}.
@@ -29,23 +29,23 @@
 #'   columns:
 #'   \describe{
 #'     \item{concentration}{The supplied concentrations.}
-#'     \item{effect_tox_LL5}{The effect predicted by the five-parameter
+#'     \item{survival_tox_LL5}{The survival predicted by the five-parameter
 #'     log-logistic model derived from the observations under toxicant stress
 #'     but without environmental stress.}
-#'     \item{effect_tox}{Modeled effect resulting from toxicant stress.}
-#'     \item{effect_tox_sys}{Modeled effect resulting from toxicant and system
-#'     stress.}
+#'     \item{survival_tox}{Modeled survival resulting from toxicant stress.}
+#'     \item{survival_tox_sys}{Modeled survival resulting from toxicant
+#'     and system stress.}
 #'     \item{stress_tox}{The toxicant stress.}
 #'     \item{sys_tox}{System stress under toxicant stress conditions
 #'     without environmental stress.}
 #'     \item{stress_tox_sys}{The sum of \code{stress_tox} and
 #'     \code{sys_tox}.}
-#'     \item{effect_tox_env_LL5}{The effect predicted by the five-parameter
+#'     \item{survival_tox_env_LL5}{The survival predicted by the five-parameter
 #'     log-logistic model derived from the observations under toxicant stress
 #'     with environmental stress.}
-#'     \item{effect_tox_env}{Modeled effect resulting from toxicant and
+#'     \item{survival_tox_env}{Modeled survival resulting from toxicant and
 #'     environmental stress.}
-#'     \item{effect_tox_env_sys}{Modeled effect resulting from toxicant,
+#'     \item{survival_tox_env_sys}{Modeled survival resulting from toxicant,
 #'     environmental and system stress.}
 #'     \item{stress_env}{Environmental stress.}
 #'     \item{stress_tox_env}{The sum of toxicant and environmental stress.}
@@ -58,8 +58,8 @@
 #' @examples model <- ecxsys(
 #'     concentration = c(0, 0.05, 0.5, 5, 30),
 #'     hormesis_concentration = 0.5,
-#'     effect_tox_observed = c(90, 81, 92, 28, 0),
-#'     effect_tox_env_observed = c(29, 27, 33, 5, 0)
+#'     survival_tox_observed = c(90, 81, 92, 28, 0),
+#'     survival_tox_env_observed = c(29, 27, 33, 5, 0)
 #' )
 #' p <- predict_ecxsys(model, c(0.001, 0.01, 0.1, 1, 10))
 #'
@@ -73,30 +73,30 @@ predict_ecxsys <- function(model, concentration) {
     )
     p <- model$args$p
     q <- model$args$q
-    effect_max <- model$args$effect_max
+    survival_max <- model$args$survival_max
     out_df <- data.frame(
         concentration = concentration
     )
 
-    out_df$effect_tox_LL5 <- predict(
-        model$effect_tox_LL5_mod,
+    out_df$survival_tox_LL5 <- predict(
+        model$survival_tox_LL5_mod,
         data.frame(concentration = concentration)
-    ) * effect_max
+    ) * survival_max
 
     if (model$with_env) {
-        out_df$effect_tox_env_LL5 <- predict(
-            model$effect_tox_env_LL5_mod,
+        out_df$survival_tox_env_LL5 <- predict(
+            model$survival_tox_env_LL5_mod,
             data.frame(concentration = concentration)
-        ) * effect_max
+        ) * survival_max
     }
 
-    effect_tox <- predict(
-        model$effect_tox_mod,
+    survival_tox <- predict(
+        model$survival_tox_mod,
         data.frame(concentration = concentration)
     )
-    out_df$effect_tox <- effect_tox * effect_max
+    out_df$survival_tox <- survival_tox * survival_max
 
-    stress_tox <- effect_to_stress(effect_tox, p, q)
+    stress_tox <- survival_to_stress(survival_tox, p, q)
     out_df$stress_tox <- stress_tox
 
     sys_tox <- predict(
@@ -108,8 +108,8 @@ predict_ecxsys <- function(model, concentration) {
     stress_tox_sys <- stress_tox + sys_tox
     out_df$stress_tox_sys <- stress_tox_sys
 
-    effect_tox_sys <- stress_to_effect(stress_tox_sys, p, q)
-    out_df$effect_tox_sys <- effect_tox_sys * effect_max
+    survival_tox_sys <- stress_to_survival(stress_tox_sys, p, q)
+    out_df$survival_tox_sys <- survival_tox_sys * survival_max
 
     if (model$with_env) {
         out_df$stress_env <- model$stress_env
@@ -117,9 +117,9 @@ predict_ecxsys <- function(model, concentration) {
         stress_tox_env <- stress_tox + model$stress_env
         out_df$stress_tox_env <- stress_tox_env
 
-        out_df$effect_tox_env <- stress_to_effect(
+        out_df$survival_tox_env <- stress_to_survival(
             stress_tox_env, p, q
-        ) * effect_max
+        ) * survival_max
 
         sys_tox_env <- predict(
             model$sys_tox_env_mod,
@@ -131,10 +131,10 @@ predict_ecxsys <- function(model, concentration) {
             sys_tox_env
         out_df$stress_tox_env_sys <- stress_tox_env_sys
 
-        effect_tox_env_sys <- stress_to_effect(
+        survival_tox_env_sys <- stress_to_survival(
             stress_tox_env_sys, p, q
         )
-        out_df$effect_tox_env_sys <- effect_tox_env_sys * effect_max
+        out_df$survival_tox_env_sys <- survival_tox_env_sys * survival_max
     }
 
     class(out_df) <- c("ecxsys_predicted", class(out_df))
