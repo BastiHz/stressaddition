@@ -26,7 +26,7 @@
 #'
 #' @name plot_ecxsys
 #'
-#' @param model The list returned from \code{\link{ecxsys}}.
+#' @param model The object returned from \code{\link{ecxsys}}.
 #' @param which A vector of names to plot. Allowed are the column names of the
 #'   \code{model$curves} data frame. There is also
 #'   \code{"survival_tox_observed"} and \code{"survival_tox_env_observed"} for

@@ -12,8 +12,8 @@ Comment on any notes that come up during devtools::check().
 -->
 
 ### system details
-* RStudio Version:
 * R Version:
+* RStudio Version:
 * OS Version:
 
 ### checklist

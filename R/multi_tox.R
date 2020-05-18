@@ -24,11 +24,12 @@
 #' details.
 #'
 #' The predictions are symmetric, i.e. it does not matter which of the toxicant
-#' models is 1 or 2 as long as the concentration arguments are supplied in the
-#' right order. See the example below.
+#' models is a or b as long as the concentration arguments are supplied in the
+#' same order.
 #'
-#' This method is only suitable for experiments without environmental stress.
-#' Any environmental stress in \code{model_a} or \code{model_b} is ignored.
+#' This method is only suitable for experiments without or with low
+#' environmental stress. Any environmental stress supplied as arguments to
+#' \code{\link{ecxsys}} in \code{model_a} or \code{model_b} is ignored.
 #'
 #' @param model_a,model_b The ecxsys models of the toxicants.
 #' @param concentration_a,concentration_b The concentrations of the toxicants in
@@ -45,31 +46,48 @@
 #' @return A data frame with columns of the supplied concentrations and the
 #'   corresponding mixture survival and stresses.
 #'
-#' @examples toxicant_a  <- ecxsys(
-#'     concentration = c(0, 0.05, 0.5, 5, 30),
-#'     hormesis_concentration = 0.5,
-#'     survival_tox_observed = c(90, 81, 92, 28, 0),
+#' @examples
+#' # Using a data set which is included in this package. See ?multiple_stress
+#' ms <- multiple_stress
+#' esfen <- ms[ms$food == 1 & ms$prochloraz == 0, ]
+#' proch <- ms[ms$food == 1 & ms$esfenvalerate == 0, ]
+#'
+#' model_esfen <- ecxsys(
+#'     concentration = esfen$esfenvalerate,
+#'     survival_tox_observed = esfen$survival,
+#'     hormesis_concentration = 0.1
 #' )
-#' toxicant_b  <- ecxsys(
-#'     concentration = c(0, 0.1, 1, 10, 100, 1000),
-#'     hormesis_concentration = 10,
-#'     survival_tox_observed = c(26, 25, 24, 27, 5, 0),
-#'     survival_max = 30
-#' )
-#' multi_tox(
-#'     toxicant_a ,
-#'     toxicant_b ,
-#'     c(0, 0.02, 0.2, 2, 20),
-#'     c(0, 0.03, 0.4, 5, 10)
+#' model_proch <- ecxsys(
+#'     concentration = proch$prochloraz,
+#'     survival_tox_observed = proch$survival,
+#'     hormesis_concentration = 100
 #' )
 #'
-#' # Example of symmetric prediction:
-#' conc_a <- c(0, 0.03, 0.3, 3)
-#' conc_b <- 5.5
-#' sa_contrib <- 0.75
-#' mix_a <- multi_tox(toxicant_a , toxicant_b , conc_a, conc_b, sa_contrib)
-#' mix_b <- multi_tox(toxicant_b , toxicant_a , conc_b, conc_a, sa_contrib)
-#' identical(mix_a$survival, mix_b$survival)
+#' # Predict the survival at 8 different esfenvalerate concentrations
+#' # but keep the prochloraz concentration constant at 32:
+#' mt <- multi_tox(
+#'     model_esfen,
+#'     model_proch,
+#'     c(0, 0.0001, 0.001, 0.01, 0.1, 0.316, 1, 3.16),
+#'     32,
+#'     sa_contribution = 0.8
+#' )
+#' mt[1:3]  # The concentrations and survival of the 8 mixtures.
+#'
+#' # Predict the survival at 4 different combinations
+#' # of esfenvalerate and prochloraz:
+#' mt <- multi_tox(
+#'     model_esfen,
+#'     model_proch,
+#'     c(0.1, 0.2, 0.3, 0.4),
+#'     c(0, 1, 32, 100),
+#'     sa_contribution = 0.8
+#' )
+#' mt[1:3]  # The concentrations and survival of the 4 mixtures.
+#'
+#'
+#' @references Liess, M., Henz, S., Shahid, N., 2020. Modelling the synergistic
+#'   effects of toxicant mixtures. Manuscript submitted for publication.
 #'
 #' @export
 multi_tox <- function(model_a,
