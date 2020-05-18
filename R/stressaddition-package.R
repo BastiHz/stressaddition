@@ -27,20 +27,20 @@
 # description.
 
 
-#' @details See the publication linked below for more information including
-#'   equations.
+#' @details This R package contains the definitions of the
+#'   \link[=ecxsys]{ECx-SyS} model and the \link[=multi_tox]{Multi-TOX} model.
+#'   See the publications linked below for more information including equations.
 #'
-#'   In the paper the model is introduced in the context of survival
-#'   experiments. However, we conjecture that it can also be used to model
-#'   other concentration dependent responses.
-#'
-#'   This package is not on CRAN. It is hosted on the UFZ GitLab server. Visit
-#'   the repository linked below for the newest version. See the readme file
-#'   there for instructions on how to install and update the package.
+#'   Author contributions: M. Liess conceived the ECx-SyS and Multi-TOX models.
+#'   S. Henz developed this R package. N. Shahid contributed to the optimization
+#'   of the Multi-TOX model and provided the \link{multiple_stress} data set.
 #'
 #' @references \href{https://doi.org/10.1038/s41598-019-51645-4}{Liess, M.,
 #'   Henz, S. & Knillmann, S. Predicting low-concentration effects of
 #'   pesticides. Sci Rep 9, 15248 (2019).}
+#'
+#'   Liess, M., Henz, S., Shahid, N., 2020. Modelling the synergistic effects of
+#'   toxicant mixtures. Manuscript submitted for publication.
 #'
 #' @import stats
 #' @import graphics

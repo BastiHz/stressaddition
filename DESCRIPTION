@@ -1,8 +1,8 @@
 Package: stressaddition
 Type: Package
-Title: Modeling Tri-Phasic Concentration-Response Relationships
+Title: Modelling Tri-Phasic Concentration-Response Relationships
 Version: 3.0.0
-Date: 2020-05-07
+Date: 2020-05-18
 Authors@R: c(person("Sebastian", 
                     "Henz", 
                     role = c("aut", "cre"), 
@@ -12,20 +12,24 @@ Authors@R: c(person("Sebastian",
                     "Liess",
                     role = "aut",
                     comment = c(ORCID = "0000-0002-3321-8909")),
+             person("Naeem",
+                    "Shahid",
+                    role = "ctb",
+                    comment = c(ORCID = "0000-0001-6581-1654")),
              person("Helmholtz-Zentrum fuer Umweltforschung GmbH - UFZ",
-                    role = c("cph", "fnd")))
-Description: The implementation of the tri-phasic concentration-response model 
-    introduced in "Predicting low-concentration effects of pesticides" by 
-    Liess, Henz and Knillmann (2019) <doi: 10.1038/s41598-019-51645-4>. It 
-    allows modeling of ecotoxicological experiments where the response shows 
-    signs of hormesis.
+                    role = c("cph")))
+Description: The stress addition approach is an alternative to the traditional 
+    concentration addition or effect addition models. It allows the modelling 
+    of tri-phasic concentration-response relationships either as single toxicant 
+    experiments, in combination with an environmental stressor or as mixtures of 
+    two toxicants.
 License: GPL-3
 Copyright: file inst/COPYRIGHTS
 URL: https://git.ufz.de/oekotox/stressaddition
 Encoding: UTF-8
 LazyData: true
 Depends:
-    R (> 3.5)
+    R (>= 3.5)
 Imports: 
     drc (>= 3.0),
     plotrix

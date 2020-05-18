@@ -4,14 +4,17 @@
 * Renamed all instances of "effect" to "survival".
 * Renamed all instances of "ec" to "lc".
 * Renamed `predict_mixture()`, which was a temporary development name, to `multi_tox()`.
-* The argument `proportion_ca` in the mixture model `multi_tox()` was renamed and its value reversed. It is now called `sa_contribution` and specifies the proportion of stress addition in the calculation of toxicant stress. To convert your code from the old version use this equation: sa_contribution = 1 - proportion_ca.
+* The argument `proportion_ca` in the mixture model `multi_tox()` was renamed and its value reversed. It is now called `sa_contribution` and specifies the proportion of stress addition in the calculation of toxicant stress. To convert your code from the old version use this equation: `sa_contribution = 1 - proportion_ca`.
 * Renamed `stress_tox_sam` to `stress_tox_sa` in the output of `multi_tox()`.
 
 ## Bugfixes
 * Fixed a bug where `plot_stress()` with argument `which = NULL` would result in an error. Now it correctly draws the axes without data.
+* Fixed some errors in the documentation and improved the examples.
 
 ## New
-* Exporte function `log10_ticks()` for calculating tick mark labels and positions on a base 10 logarithmic axis.
+* Export function `log10_ticks()` for calculating tick mark labels and positions on a base 10 logarithmic axis.
+* Add example data set `multiple_stress` for use with `multi_tox()`.
+* Various minor changes to prepare for CRAN submission.
 
 # stressaddition 2.7.0
 

@@ -7,3 +7,4 @@
 ^LICENSE\.txt$
 ^\.gitlab$
 ^\.gitlab-ci\.yml$
+^data-raw$

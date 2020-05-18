@@ -5,7 +5,7 @@ This is the R implementation of the tri-phasic concentration-response model intr
 The EC<sub>x-SyS</sub> and Multi-TOX models from this package are also available as part of the [Indicate app](http://www.systemecology.eu/indicate) which offers a graphical user interface.
 
 ## Installation
-Stressaddition is not yet on CRAN. You can install the most recent stable version from GitLab using the remotes package:
+Stressaddition is not yet on CRAN. You can install the most recent development version from GitLab using the remotes package:
 ``` r
 install.packages("remotes")
 remotes::install_gitlab("oekotox/stressaddition", host = "git.ufz.de")

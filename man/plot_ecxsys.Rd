@@ -26,7 +26,7 @@ plot_survival(
 )
 }
 \arguments{
-\item{model}{The list returned from \code{\link{ecxsys}}.}
+\item{model}{The object returned from \code{\link{ecxsys}}.}
 
 \item{which}{A vector of names to plot. Allowed are the column names of the
 \code{model$curves} data frame. There is also
