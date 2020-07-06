@@ -2,7 +2,7 @@ Package: stressaddition
 Type: Package
 Title: Modelling Tri-Phasic Concentration-Response Relationships
 Version: 3.0.0
-Date: 2020-05-18
+Date: 2020-07-06
 Authors@R: c(person("Sebastian", 
                     "Henz", 
                     role = c("aut", "cre"), 
@@ -17,7 +17,7 @@ Authors@R: c(person("Sebastian",
                     role = "ctb",
                     comment = c(ORCID = "0000-0001-6581-1654")),
              person("Helmholtz-Zentrum fuer Umweltforschung GmbH - UFZ",
-                    role = c("cph")))
+                    role = c("cph", "fnd")))
 Description: The stress addition approach is an alternative to the traditional 
     concentration addition or effect addition models. It allows the modelling 
     of tri-phasic concentration-response relationships either as single toxicant 
@@ -35,4 +35,4 @@ Imports:
     plotrix
 Suggests: 
     testthat (>= 2.1.0)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

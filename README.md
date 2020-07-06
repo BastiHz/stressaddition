@@ -1,47 +1,84 @@
 # stressaddition
-This is the R implementation of the tri-phasic concentration-response model introduced in
-[Liess, M., Henz, S. & Knillmann, S. Predicting low-concentration effects of pesticides. Sci Rep 9, 15248 (2019)](https://doi.org/10.1038/s41598-019-51645-4). It allows modeling of ecotoxicological experiments where the response shows signs of a hormesis effect.
+This R package makes it possible to model tri-phasic concentration-response relationships using the stress addition approach. It is useful for the analysis of ecotoxicological data where the traditional concentration addition or effect addition models are inadequate. Its main functions are `ecxsys()` and `multi_tox()`.
 
-The EC<sub>x-SyS</sub> and Multi-TOX models from this package are also available as part of the [Indicate app](http://www.systemecology.eu/indicate) which offers a graphical user interface.
+`ecxsys()` implements **EC<sub>x-SyS</sub>**, the tri-phasic concentration-response model introduced in
+[Liess, M., Henz, S. & Knillmann, S. Predicting low-concentration effects of pesticides. Sci Rep 9, 15248 (2019)](https://doi.org/10.1038/s41598-019-51645-4). It is applicable to modelling ecotoxicological experiments with and without environmental stress where the response contains a hormesis effect.
+
+`multi_tox()` implements **Multi-TOX**, a model for binary mixtures of toxicants where each toxicant exhibits a tri-phasic concentration-response relationship. See *Liess, M., Henz, S., Shahid, N. (2020), Modelling the synergistic effects of toxicant mixtures. Manuscript submitted for publication*.
+
+The EC<sub>x-SyS</sub> and Multi-TOX models are also available as part of the [Indicate app](http://www.systemecology.eu/indicate) which offers an easy to use graphical user interface.
 
 ## Installation
-Stressaddition is not yet on CRAN. You can install the most recent development version from GitLab using the remotes package:
+This package is not yet available on CRAN. Until then you can install the most recent version from GitLab using the remotes package:
 ``` r
 install.packages("remotes")
 remotes::install_gitlab("oekotox/stressaddition", host = "git.ufz.de")
 ```
-Alternatively there are binary and source builds of various versions downloadable from the [releases page](https://git.ufz.de/oekotox/stressaddition/-/releases).
-
-## Updating
-RStudio's integrated package updater won't detect updates in packages installed from GitHub or GitLab. I recommend running 
-```r
-remotes::update_packages()
-```
-in regular intervals to check for updates from those sources.
+Alternatively, there are binary and source builds of various versions available for download from the [releases page](https://git.ufz.de/oekotox/stressaddition/-/releases).
 
 ## Citation
 Please cite this package if you use it in your analysis. See `citation("stressaddition")` for details.
 
-## Example
-```r
+## Examples
+
+### EC<sub>x-SyS</sub>
+Model a concentration-response relationship with hormesis:
+```R
 library(stressaddition)
-model <- ecxsys(
+model_a <- ecxsys(
     concentration = c(0, 0.05, 0.5, 5, 30),
-    hormesis_concentration = 0.5,
     survival_tox_observed = c(90, 81, 92, 28, 0),
-    survival_tox_env_observed = c(29, 27, 33, 5, 0)
+    survival_tox_env_observed = c(29, 27, 33, 5, 0),
+    hormesis_concentration = 0.5
 )
+```
 
-# Plot the effect and the system stress:
+Calculate the LC<sub>50</sub> and LC<sub>10</sub>:
+```R
+# LC50 under the influence of toxicant and system stress:
+lc(model_a, "survival_tox_sys", 50)
+# $response
+# [1] 44.95368
+# 
+# $concentration
+# [1] 3.375735
+
+# LC10 under the influence  of toxicant, environmental and system stress:
+lc(model_a, "survival_tox_env_sys", 10)
+# $response
+# [1] 26.41904
+# 
+# $concentration
+# [1] 0.0008571244
+```
+
+Plot the survival and the system stresses:
+```R
 par(mfrow = c(2, 1))
-plot_survival(model)
-plot_stress(model)
+plot_survival(model_a, show_legend = TRUE)
+plot_stress(model_a, show_legend = TRUE)
+```
+![survival and stress plot](images/example.png)
 
-# The LC50 under the influence of toxicant and system tress:
-lc(model, "survival_tox_sys", 50)
-
-# The LC10 under the influence  of toxicant, system and environmental tress:
-lc(model, "survival_tox_env_sys", 10)
+### Multi-TOX
+Define an additional single toxicant model and calculate the survival for some binary concentration mixtures:
+```R
+model_b <- ecxsys(
+    concentration = c(0, 0.01, 0.1, 1, 10, 100),
+    survival_tox_observed = c(96, 89, 91, 57, 9, 0),
+    hormesis_concentration = 0.1
+)
+multi_tox(
+    model_a,
+    model_b,
+    concentration_a = c(0.1, 0.3, 2, 15),
+    concentration_b = c(0.04, 0.1, 1, 13)
+)[, 1:3]
+#   concentration_a concentration_b survival
+# 1             0.1            0.04 84.44956
+# 2             0.3            0.10 73.53734
+# 3             2.0            1.00 13.38661
+# 4            15.0           13.00  0.00000
 ```
 
 ## Copyright and License

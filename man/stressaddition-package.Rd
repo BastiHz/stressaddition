@@ -47,7 +47,7 @@ Authors:
 Other contributors:
 \itemize{
   \item Naeem Shahid (\href{https://orcid.org/0000-0001-6581-1654}{ORCID}) [contributor]
-  \item Helmholtz-Zentrum fuer Umweltforschung GmbH - UFZ [copyright holder]
+  \item Helmholtz-Zentrum fuer Umweltforschung GmbH - UFZ [copyright holder, funder]
 }
 
 }
