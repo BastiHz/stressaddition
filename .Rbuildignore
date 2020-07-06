@@ -8,3 +8,4 @@
 ^\.gitlab$
 ^\.gitlab-ci\.yml$
 ^data-raw$
+^images$
