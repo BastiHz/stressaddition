@@ -20,6 +20,13 @@ distribution. Default is 3.2.}
 
 \item{stress}{One or more stress values to convert to survival.}
 }
+\value{
+\code{stress_to_survival} returns a vector the same length as
+  \code{stress} giving the survival caused by each amount of stress.
+
+  \code{survival_to_stress} returns a vector the same length as
+  \code{survival} containing the stress values associated with each survival.
+}
 \description{
 Functions to convert survival to general stress or vice versa using the beta
 distribution.
@@ -27,9 +34,7 @@ distribution.
 \details{
 These are simple wrappers around the beta distribution function
 \code{\link[stats:Beta]{pbeta}} and the beta quantile function
-\code{\link[stats:Beta]{qbeta}}. \code{stress_to_survival} returns \code{1 -
-pbeta(stress, p, q)}. \code{survival_to_stress} first clamps the survival to
-the interval [0, 1] and then returns \code{qbeta(1 - survival, p, q)}.
+\code{\link[stats:Beta]{qbeta}}.
 }
 \examples{
 stress <- 0.3

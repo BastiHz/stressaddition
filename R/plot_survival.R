@@ -175,4 +175,5 @@ plot_survival <- function(model,
             )
         }
     }
+    NULL  # suppress all possible return values
 }

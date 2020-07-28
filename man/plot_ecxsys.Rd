@@ -42,6 +42,9 @@ the number of elements shown.}
 
 \item{xlab, ylab, main}{Axis labels and title.}
 }
+\value{
+None
+}
 \description{
 Plot the observed and modeled survivals and stresses.
 }

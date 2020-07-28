@@ -40,6 +40,8 @@
 #'   the number of elements shown.
 #' @param xlab,ylab,main Axis labels and title.
 #'
+#' @return None
+#'
 #' @examples model <- ecxsys(
 #'     concentration = c(0, 0.05, 0.5, 5, 30),
 #'     hormesis_concentration = 0.5,
