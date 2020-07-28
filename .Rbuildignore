@@ -9,3 +9,4 @@
 ^\.gitlab-ci\.yml$
 ^data-raw$
 ^images$
+^cran-comments\.md$
