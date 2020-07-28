@@ -10,7 +10,7 @@ The stress addition approach is an alternative to the traditional
     concentration addition or effect addition models. It allows the modelling 
     of tri-phasic concentration-response relationships either as single toxicant 
     experiments, in combination with an environmental stressor or as mixtures of 
-    two toxicants.
+    two toxicants. See Liess et al. (2019) <doi:10.1038/s41598-019-51645-4>.
 }
 \details{
 This R package contains the definitions of the
