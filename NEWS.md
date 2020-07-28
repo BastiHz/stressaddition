@@ -1,3 +1,7 @@
+# stressaddition 3.0.1
+* Add missing return values in documentation to comply with CRAN policies.
+* Add a link to the paper in the description file.
+
 # stressaddition 3.0.0
 
 ## Breaking changes

@@ -9,7 +9,7 @@ This R package makes it possible to model tri-phasic concentration-response rela
 The EC<sub>x-SyS</sub> and Multi-TOX models are also available as part of the [Indicate app](http://www.systemecology.eu/indicate) which offers an easy to use graphical user interface.
 
 ## Installation
-This package is not available on CRAN. You can install the most recent version from GitLab:
+This package is not yet available from CRAN. You can install the most recent version from GitLab:
 ``` r
 install.packages("remotes")
 remotes::install_gitlab("oekotox/stressaddition", host = "git.ufz.de")
