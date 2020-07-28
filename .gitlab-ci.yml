@@ -11,6 +11,7 @@
     - merge_requests
     - tags
   script:
+    - R -e 'sessionInfo()'
     - R -e 'devtools::install_deps(quiet = TRUE)'
     - R -e 'devtools::check(error_on = "note", document = FALSE)'
 
