@@ -1,5 +1,6 @@
 ## Test environments
 * local Windows 10 install, R 4.0.2
+* win-builder, R devel
 * Debian GNU/Linux 9 on GitLab CI, R 3.5.1
 * Debian GNU/Linux 10 on GitLab CI, R 3.6.3
 * Ubuntu 20.04 on GitLab CI, R 4.0.2
