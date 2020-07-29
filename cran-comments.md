@@ -6,10 +6,8 @@
 * Ubuntu 20.04 on GitLab CI, R 4.0.2
 * Ubuntu 20.04 on GitLab CI, R devel (2020-07-21 r78893)
 
-
 ## R CMD check results
-There were no ERRORs, WARNINGs, or NOTEs. 
-
+There were no errors, warnings, or notes. 
 
 ## Downstream dependencies
 There are no downstream dependencies yet.
