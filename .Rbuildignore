@@ -10,4 +10,4 @@
 ^data-raw$
 ^images$
 ^cran-comments\.md$
-^win-builder_results$
+^check-results$
