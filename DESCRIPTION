@@ -6,7 +6,7 @@ Date: 2020-08-18
 Authors@R: c(person("Sebastian", 
                     "Henz", 
                     role = c("aut", "cre"), 
-                    email = "sebastian.henz@ufz.de", 
+                    email = "bastihz.dev@posteo.de", 
                     comment = c(ORCID = "0000-0001-8299-8852")),
              person("Matthias",
                     "Liess",
