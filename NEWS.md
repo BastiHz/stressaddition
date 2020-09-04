@@ -2,6 +2,7 @@
 
 * Fixed a bug where the plotting functions printed `NULL` to the console.
 * Changed maintainer e-mail address to ensure long-term maintainability.
+* Internal improvements related to package testing.
 
 
 # stressaddition 3.0.1
