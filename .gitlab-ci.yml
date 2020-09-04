@@ -1,6 +1,6 @@
 # Using the rocker/tidyverse image because it has devtools and testthat.
 
-# Use "document = FALSE" to catch potential mismatches between the roxygen
+# Using "document = FALSE" catches potential mismatches between the roxygen
 # comments and the .Rd files. This could happen when checking locally
 # with "document = TRUE" (the default), which updates the .Rd files, but then
 # forgetting to commit and push those updated .Rd files.
@@ -12,6 +12,7 @@
     - tags
   script:
     - R -e 'sessionInfo()'
+    - R -e 'Sys.setenv("_R_CHECK_SYSTEM_CLOCK_" = 0)'  # disable time check, see issue #54
     - R -e 'devtools::install_deps(quiet = TRUE)'
     - R -e 'devtools::check(error_on = "note", document = FALSE)'
 
