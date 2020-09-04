@@ -1,9 +1,12 @@
-# stressaddition (development version)
+# stressaddition 3.0.2
 
 * Fixed a bug where the plotting functions printed `NULL` to the console.
+* Changed maintainer e-mail address to ensure long-term maintainability.
+* Internal improvements related to package testing.
 
 
 # stressaddition 3.0.1
+
 * Added missing return values in documentation to comply with CRAN repository policy.
 * Added a link to the paper in the description file.
 

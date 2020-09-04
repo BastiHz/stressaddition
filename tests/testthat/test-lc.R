@@ -50,45 +50,41 @@ test_that("all input formats produce identical models", {
 
 
 test_that("lc values have not changed", {
+    # Don't test too accurately because somehow testing on different
+    # operating systems may give slightly different results.
+    # Remember to use rhub for running tests on all major platforms
+    # including macos.
     expect_equal(
-        lc(model, "survival_tox_sys", 50),
-        list(response = 44.95368, concentration = 3.375735),
-        tolerance = 1e-4
+        lapply(lc(model, "survival_tox_sys", 50), round, 2),
+        list(response = 44.95, concentration = 3.38)
     )
     expect_equal(
-        lc(model, "survival_tox_sys", 10),
-        list(response = 80.91662, concentration = 1.098648),
-        tolerance = 1e-4
+        lapply(lc(model, "survival_tox_sys", 10), round, 2),
+        list(response = 80.92, concentration = 1.10)
     )
     expect_equal(
-        lc(model, "survival_tox", 100/3),
-        list(response = 66.66667, concentration = 1.902125),
-        tolerance = 1e-4
+        lapply(lc(model, "survival_tox", 100/3), round, 2),
+        list(response = 66.67, concentration = 1.90)
     )
     expect_equal(
-        lc(model, "survival_tox_LL5", 42),
-        list(response = 52.2, concentration = 2.054426),
-        tolerance = 1e-4
+        lapply(lc(model, "survival_tox_LL5", 42), round, 2),
+        list(response = 52.20, concentration = 2.05)
     )
     expect_equal(
-        lc(model, "survival_tox_env_sys", 50),
-        list(response = 14.67725, concentration = 1.299516),
-        tolerance = 1e-4
+        lapply(lc(model, "survival_tox_env_sys", 50), round, 2),
+        list(response = 14.68, concentration = 1.30)
     )
     expect_equal(
-        lc(model, "survival_tox_env_sys", 10),
-        list(response = 26.41904, concentration = 0.0008571244),
-        tolerance = 1e-4
+        lapply(lc(model, "survival_tox_env_sys", 10), round, 4),
+        list(response = 26.419, concentration = 0.0009)
     )
     expect_equal(
-        lc(model, "survival_tox_env", 67.89),
-        list(response = 24.51453, concentration = 0.7890892),
-        tolerance = 1e-4
+        lapply(lc(model, "survival_tox_env", 67.89), round, 2),
+        list(response = 24.51, concentration = 0.79)
     )
     expect_equal(
-        lc(model, "survival_tox_env_LL5", 3.14159),
-        list(response = 28.73466, concentration = 0.7267524),
-        tolerance = 1e-4
+        lapply(lc(model, "survival_tox_env_LL5", 3.14), round, 2),
+        list(response = 28.74, concentration = 0.73)
     )
 })
 
