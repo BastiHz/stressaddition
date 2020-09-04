@@ -5,16 +5,25 @@
 # with "document = TRUE" (the default), which updates the .Rd files, but then
 # forgetting to commit and push those updated .Rd files.
 
+# Setting the environment variable "_R_CHECK_SYSTEM_CLOCK_" to 0
+# to disable package time check, see issue #54
+
+# Run the R commands under a single "R -e" so everything runs in
+# the same R session.
+# Note for the future: If there are going to be more R commands just put them
+# in a separate R script and run that from here.
+
 .check_template: &check_job_template
   only:
     - master
     - merge_requests
     - tags
   script:
-    - R -e 'sessionInfo()'
-    - R -e 'Sys.setenv("_R_CHECK_SYSTEM_CLOCK_" = 0)'  # disable time check, see issue #54
-    - R -e 'devtools::install_deps(quiet = TRUE)'
-    - R -e 'devtools::check(error_on = "note", document = FALSE)'
+    - R -e
+        "sessionInfo();
+        Sys.setenv('_R_CHECK_SYSTEM_CLOCK_' = 0);
+        devtools::install_deps(quiet = TRUE);
+        devtools::check(error_on = 'note', document = FALSE)"
 
 # Earliest supported version
 check-3.5.1:
