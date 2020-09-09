@@ -43,9 +43,9 @@ test_that("all input formats produce identical models", {
     )
     ec10_d <- lc(df_custom, "foo", 10)
 
-    expect_equal(ec10_a, ec10_b, tolerance = 1e-5)
-    expect_equal(ec10_b, ec10_c, tolerance = 1e-5)
-    expect_equal(ec10_c, ec10_d, tolerance = 1e-5)
+    expect_equal(ec10_a, ec10_b, tolerance = 1e-3)
+    expect_equal(ec10_b, ec10_c, tolerance = 1e-3)
+    expect_equal(ec10_c, ec10_d, tolerance = 1e-3)
 })
 
 
@@ -107,11 +107,11 @@ test_that("reference argument works", {
     expect_equal(
         lc(model, "survival_tox_LL5", 50, reference = 100),
         list(response = 50, concentration = 2.208119),
-        tolerance = 1e-4
+        tolerance = 1e-3
     )
     expect_equal(
         lc(model, "survival_tox_LL5", 50, reference = 75),
         list(response = 37.5, concentration = 3.342715),
-        tolerance = 1e-4
+        tolerance = 1e-3
     )
 })
