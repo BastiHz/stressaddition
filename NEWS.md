@@ -1,3 +1,7 @@
+# stressaddition 3.0.3
+
+* Added references to the journal article about the Multi-Tox model which was recently published.
+
 # stressaddition 3.0.2
 
 * Fixed a bug where the plotting functions printed `NULL` to the console.

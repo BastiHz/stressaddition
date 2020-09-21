@@ -4,7 +4,7 @@ This R package makes it possible to model tri-phasic concentration-response rela
 `ecxsys()` implements **EC<sub>x-SyS</sub>**, the tri-phasic concentration-response model introduced in
 [Liess, M., Henz, S. & Knillmann, S. Predicting low-concentration effects of pesticides. Sci Rep 9, 15248 (2019)](https://doi.org/10.1038/s41598-019-51645-4). It is applicable to modelling ecotoxicological experiments with and without environmental stress where the response contains a hormesis effect.
 
-`multi_tox()` implements **Multi-TOX**, a model for binary mixtures of toxicants where each toxicant exhibits a tri-phasic concentration-response relationship. See *Liess, M., Henz, S., Shahid, N. (2020), Modelling the synergistic effects of toxicant mixtures. Manuscript submitted for publication*.
+`multi_tox()` implements **Multi-TOX**, a model for binary mixtures of toxicants where each toxicant exhibits a tri-phasic concentration-response relationship. See [Liess, M., Henz, S. & Shahid, N. Modeling the synergistic effects of toxicant mixtures. Environ Sci Eur 32, 119 (2020)](https://doi.org/10.1186/s12302-020-00394-7).
 
 The EC<sub>x-SyS</sub> and Multi-TOX models are also available as part of the [Indicate app](http://www.systemecology.eu/indicate) which offers an easy to use graphical user interface.
 
