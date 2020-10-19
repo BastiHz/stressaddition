@@ -89,7 +89,7 @@ plot_survival(model_a)
 plot_stress(model_a)
 ```
 
-<img src="images/README-example_plot-1.png" width="100%" />
+![](images/README-example_plot-1.png)<!-- -->
 
 ### Multi-TOX
 
