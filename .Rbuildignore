@@ -11,3 +11,4 @@
 ^images$
 ^cran-comments\.md$
 ^check-results$
+^README\.Rmd$
