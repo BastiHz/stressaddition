@@ -6,11 +6,11 @@
 \alias{stressaddition-package}
 \title{stressaddition: Modelling Tri-Phasic Concentration-Response Relationships}
 \description{
-The stress addition approach is an alternative to the traditional 
-    concentration addition or effect addition models. It allows the modelling 
-    of tri-phasic concentration-response relationships either as single toxicant 
-    experiments, in combination with an environmental stressor or as mixtures of 
-    two toxicants. See Liess et al. (2019) <doi:10.1038/s41598-019-51645-4> 
+The stress addition approach is an alternative to the traditional
+    concentration addition or effect addition models. It allows the modelling
+    of tri-phasic concentration-response relationships either as single toxicant
+    experiments, in combination with an environmental stressor or as mixtures of
+    two toxicants. See Liess et al. (2019) <doi:10.1038/s41598-019-51645-4>
     and Liess et al. (2020) <doi:10.1186/s12302-020-00394-7>.
 }
 \details{
